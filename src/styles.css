@@ -1,0 +1,190 @@
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import url("https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,700;1,400&display=swap");
+
+:root {
+  --text: #2f4d70;
+  --white: #ffffff;
+}
+
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+body {
+  margin: 0;
+  line-height: 1;
+  overflow: hidden;
+}
+ol,
+ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: "";
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+body {
+  font-family: "Cabin", sans-serif;
+  font-size: 16px;
+  line-height: 1.3rem;
+  color: var(--text);
+  /* background: rgb(113, 76, 144);
+  background: linear-gradient(
+    180deg,
+    rgba(113, 76, 144, 1) 0%,
+    rgba(33, 128, 187, 1) 16%,
+    rgba(143, 217, 217, 1) 100%
+  ); */
+  background: rgb(242, 206, 216);
+  background: linear-gradient(
+    0deg,
+    rgba(242, 206, 216, 1) 0%,
+    rgba(242, 230, 216, 1) 100%
+  );
+}
+
+.prompt {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+  @apply pt-48;
+}
+
+.prompt > div {
+  background: rgb(242, 206, 216);
+  background: linear-gradient(
+    180deg,
+    rgba(242, 206, 216, 1) 0%,
+    rgba(242, 230, 216, 1) 100%
+  );
+  @apply rounded-lg shadow-lg p-12;
+}
+
+input {
+  @apply w-full h-12 rounded-full border-0 text-base focus:outline-black px-5;
+  font-family: "Cabin", sans-serif;
+}
+
+button {
+  @apply rounded-full border-0 text-base focus:outline-black px-5 py-2 bg-turquoise hover:bg-turquoise-light font-bold transition duration-200 focus:bg-turquoise-light;
+}
