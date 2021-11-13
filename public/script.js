@@ -4,8 +4,6 @@ require("./styles.css");
 
 var _jquery = _interopRequireDefault(require("jquery"));
 
-var _data = require("./data");
-
 var _App = _interopRequireDefault(require("./objects/App"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -27,7 +25,5 @@ var app;
  */
 
 (0, _jquery["default"])(function () {
-  app = new _App["default"]("#svg", {
-    zoomLevel: 4
-  }, _data.INITIAL_PERSONS, _data.INITIAL_TAGS);
+  app = new _App["default"]();
 });

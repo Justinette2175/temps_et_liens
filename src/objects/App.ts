@@ -1,6 +1,9 @@
+import Matter from "matter-js";
 import { PersonData, TagData } from "../types";
 import AskerManager from "./AskerManager";
+import MatterVisualization from "./MatterVisualization";
 import SVGVisualization from "./SVGVisualization";
+import Visualization from "./Visualisation";
 
 const typedWindow: any = window as any;
 
@@ -9,23 +12,20 @@ const SVG = typedWindow.SVG;
 class App {
   draw: any;
   askerManager?: AskerManager;
-  SVGVisualization?: SVGVisualization;
+  // SVGVisualization?: SVGVisualization;
+  visualization: Visualization;
   constructor() {
-    this.SVGVisualization = new SVGVisualization({ zoomLevel: 2 });
-    this.draw = SVG().addTo("#svg").size(window.innerWidth, window.innerHeight);
+    // this.SVGVisualization = new SVGVisualization({ zoomLevel: 2 });
+    this.visualization = new Visualization({ zoomLevel: 2 });
     this.askerManager = undefined;
 
-    this.getStored<PersonData>("persons").forEach((person) => {
-      if (!this.SVGVisualization) {
-        return;
-      }
-      this.SVGVisualization.addPerson(person);
-    });
     this.getStored<TagData>("tags").forEach((tag) => {
-      if (!this.SVGVisualization) {
-        return;
-      }
-      this.SVGVisualization.addTag(tag);
+      this.visualization.addTagFilter(tag.id, tag.name);
+    });
+    this.getStored<PersonData>("persons").forEach((person) => {
+      person.tags.forEach((tag) => {
+        this.visualization.addPerson(tag.id);
+      });
     });
     this.launchAsk();
   }
@@ -52,9 +52,9 @@ class App {
 
   addPerson(data: PersonData) {
     this.storePerson(data);
-    if (this.SVGVisualization) {
-      this.SVGVisualization.addPerson(data);
-    }
+    data.tags.forEach((tag) => {
+      this.visualization.addPerson(tag.id);
+    });
   }
 
   addTag(data: TagData) {
@@ -63,9 +63,7 @@ class App {
       throw new Error("This tag already exists");
     }
     this.storeTag(data);
-    if (this.SVGVisualization) {
-      this.SVGVisualization.addTag(data);
-    }
+    this.visualization.addTagFilter(data.id, data.name);
   }
 
   closeAsk() {
