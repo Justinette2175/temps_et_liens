@@ -1,61 +1,17 @@
-import Collider from "./Collider";
-import { PersonData, Position, TagData } from "../types";
-import Tag from "./Tag";
-import PersonTagsList from "./PersonTagsList";
-import RADIUS_BY_ZOOM_LEVEL from "../utils/zoom";
+import { Position } from "../types";
 
-const typedWindow: any = window as any;
-
-const SVG = typedWindow.SVG;
-
-type DisplayOptions = {
-  zoomLevel?: number;
-  location?: Position;
-};
-
-class Person extends Collider {
-  name: PersonData["name"];
-  id: PersonData["id"];
-  displayOptions: DisplayOptions;
-  tags: Array<Tag>;
+class Person {
+  bodyId: number;
+  name: string;
   circle: any;
-  onDragEnd: (person: Person) => void;
-  tagsList?: PersonTagsList;
-  tagsData: PersonData["tags"];
-  constructor(
-    draw: any,
-    personData: PersonData,
-    displayOptions: DisplayOptions,
-    onDragEnd: (person: Person) => void
-  ) {
-    super(draw);
-    this.name = personData.name;
-    this.id = personData.id;
-    this.displayOptions = displayOptions;
-    this.localDraw = draw.group().draggable();
-    this.tagsData = personData.tags;
-    this.tags = [];
+  localDraw: any;
+  constructor(draw: any, bodyId: number, name: string) {
+    this.bodyId = bodyId;
+    this.name = name;
+    this.localDraw = draw.group();
     this.circle = null;
-    this.onDragEnd = onDragEnd;
     this.display();
-    this.moveTo(displayOptions.location || { x: 0, y: 0 });
-    this.tagsList = undefined;
-    this.listenToDrag();
-  }
-
-  addTag(tagData: TagData) {
-    if (!this.tagsList) {
-      return;
-    }
-    this.tagsList.addTag(tagData);
-  }
-
-  makeTagsList(tagsData?: PersonData["tags"]) {
-    this.tagsList = new PersonTagsList(
-      this.localDraw,
-      tagsData || [],
-      this.getAbsolutePosition()
-    );
+    this.moveTo({ x: 0, y: 0 });
   }
 
   getAbsolutePosition() {
@@ -65,19 +21,8 @@ class Person extends Collider {
     };
   }
 
-  listenToDrag() {
-    this.localDraw.on("dragend.namespace", (e: any) => {
-      // this.onDragEnd(this);
-    });
-  }
-
-  changeZoomLevel(newZoomLevel: number) {
-    this.displayOptions.zoomLevel = newZoomLevel;
-    this.localDraw.clear();
-  }
-
   getRadius() {
-    return RADIUS_BY_ZOOM_LEVEL[this.displayOptions.zoomLevel || 2];
+    return 10;
   }
 
   getHeight() {

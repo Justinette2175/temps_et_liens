@@ -16,8 +16,10 @@ Matter.use(MatterAttractors);
 import RADIUS_BY_ZOOM_LEVEL from "../utils/zoom";
 
 export type BodyLabel = {
-  tagId: string;
-  objectType?: "regular" | "staticDraggable";
+  filterId?: string;
+  bodyType?: "regular" | "staticDraggable";
+  dataType?: "person" | "tag";
+  dataId: string;
 };
 
 class MatterVisualization {
@@ -27,12 +29,11 @@ class MatterVisualization {
   composite: Composite;
   mouse: Mouse;
   mouseConstraint: MouseConstraint;
-  constructor() {
+  constructor(afterUpdate: () => void) {
     this.engine = Engine.create({ gravity: { y: 0 } });
     this.render = Render.create({
       element: document.body,
       engine: this.engine,
-
       options: {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -48,6 +49,7 @@ class MatterVisualization {
       mouse: this.mouse
     });
     this.setupMouse();
+    Events.on(this.runner, "afterUpdate", afterUpdate);
   }
 
   addBodies(
@@ -59,6 +61,34 @@ class MatterVisualization {
       | (Composite | Matter.Body | Matter.Constraint | Matter.MouseConstraint)[]
   ) {
     Composite.add(this.composite, bodies);
+  }
+
+  addPerson(personId: string, tagId: string) {
+    const labelObject: BodyLabel = {
+      filterId: tagId,
+      bodyType: "regular",
+      dataType: "person",
+      dataId: personId
+    };
+    return this.addCircle({
+      radius: 10,
+      options: { label: JSON.stringify(labelObject) }
+    });
+  }
+
+  addTagFilter(tagId: string) {
+    const labelObject: BodyLabel = {
+      bodyType: "staticDraggable",
+      dataType: "tag",
+      dataId: tagId
+    };
+    console.log("tag filter", labelObject);
+    return this.addAttractiveCircle({
+      radius: 60,
+      label: JSON.stringify(labelObject),
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2
+    });
   }
 
   addCircle({
@@ -73,14 +103,21 @@ class MatterVisualization {
     options: Matter.IBodyDefinition | undefined;
     maxSides?: number | undefined;
   }) {
-    const newBody = Bodies.circle(x || 0, y || 0, radius, {
+    const body = Bodies.circle(x || 0, y || 0, radius, {
       ...options,
       friction: 0.9,
       collisionFilter: {
         group: 1
       }
     });
-    this.addBodies([newBody]);
+    this.addBodies([body]);
+    return {
+      bodyId: body.id,
+      position: {
+        ...body.position,
+        angle: body.angle
+      }
+    };
   }
 
   addAttractiveCircle({
@@ -99,8 +136,8 @@ class MatterVisualization {
       plugin: {
         attractors: [
           (bodyA: Matter.Body, bodyB: Matter.Body) => {
-            const bodyATagId = this.parseBodyLabel(bodyA.label).tagId;
-            const bodyBTagId = this.parseBodyLabel(bodyB.label).tagId;
+            const bodyATagId = this.parseBodyLabel(bodyA.label).dataId;
+            const bodyBTagId = this.parseBodyLabel(bodyB.label).filterId;
             if (bodyATagId === bodyBTagId) {
               var force = {
                 x: (bodyA.position.x - bodyB.position.x) * 1e-6,
@@ -115,10 +152,25 @@ class MatterVisualization {
     });
     Matter.Body.setStatic(body, true);
     this.addBodies([body]);
-    return { id: body.id, type: body.type };
+    return {
+      bodyId: body.id,
+      bodyType: body.type,
+      position: {
+        ...body.position,
+        angle: body.angle
+      }
+    };
   }
 
-  getBodyById(id: number) {
+  getBodyPositionAndAngleByBodyId(id: number) {
+    const body = Composite.get(this.composite, id, "body") as Body;
+    return {
+      ...body.position,
+      angle: body.angle
+    };
+  }
+
+  getBodyByBodyId(id: number) {
     return Composite.get(this.composite, id, "body");
   }
 
@@ -130,13 +182,13 @@ class MatterVisualization {
     Composite.add(this.composite, this.mouseConstraint);
     Events.on(this.mouseConstraint, "startdrag", (e) => {
       const bodyLabel = this.parseBodyLabel(e.body.label);
-      if (bodyLabel.objectType === "staticDraggable") {
+      if (bodyLabel.bodyType === "staticDraggable") {
         Matter.Body.setStatic(e.body, false);
       }
     });
     Events.on(this.mouseConstraint, "enddrag", (e) => {
       const bodyLabel = this.parseBodyLabel(e.body.label);
-      if (bodyLabel.objectType === "staticDraggable") {
+      if (bodyLabel.bodyType === "staticDraggable") {
         Matter.Body.setStatic(e.body, true);
       }
     });

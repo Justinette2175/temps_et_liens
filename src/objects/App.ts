@@ -1,8 +1,6 @@
 import Matter from "matter-js";
 import { PersonData, TagData } from "../types";
 import AskerManager from "./AskerManager";
-import MatterVisualization from "./MatterVisualization";
-import SVGVisualization from "./SVGVisualization";
 import Visualization from "./Visualisation";
 
 const typedWindow: any = window as any;
@@ -12,11 +10,12 @@ const SVG = typedWindow.SVG;
 class App {
   draw: any;
   askerManager?: AskerManager;
-  // SVGVisualization?: SVGVisualization;
   visualization: Visualization;
   constructor() {
-    // this.SVGVisualization = new SVGVisualization({ zoomLevel: 2 });
-    this.visualization = new Visualization({ zoomLevel: 2 });
+    this.visualization = new Visualization(
+      this.getStoredPersonById.bind(this),
+      this.getStoredTagById.bind(this)
+    );
     this.askerManager = undefined;
 
     this.getStored<TagData>("tags").forEach((tag) => {
@@ -24,7 +23,7 @@ class App {
     });
     this.getStored<PersonData>("persons").forEach((person) => {
       person.tags.forEach((tag) => {
-        this.visualization.addPerson(tag.id);
+        this.visualization.addPerson(person.id, person.name, tag.id);
       });
     });
     this.launchAsk();
@@ -53,7 +52,8 @@ class App {
   addPerson(data: PersonData) {
     this.storePerson(data);
     data.tags.forEach((tag) => {
-      this.visualization.addPerson(tag.id);
+      console.log("adding person for tag", tag);
+      this.visualization.addPerson(data.id, data.name, tag.id);
     });
   }
 
@@ -77,6 +77,16 @@ class App {
       this.closeAsk.bind(this),
       this.getStored<TagData>("tags")
     );
+  }
+
+  getStoredPersonById(id: string) {
+    return this.getStored<PersonData>("persons").find(
+      (person) => person.id === id
+    );
+  }
+
+  getStoredTagById(id: string) {
+    return this.getStored<TagData>("tags").find((person) => person.id === id);
   }
 }
 

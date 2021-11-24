@@ -1,4 +1,3 @@
-import Collider from "./Collider";
 import { Position, TagData } from "../types";
 
 const X_PADDING = 10;

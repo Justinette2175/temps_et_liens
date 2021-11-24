@@ -25,3 +25,9 @@ export type Position = {
   x: number;
   y: number;
 };
+
+export type PositionAndAngle = {
+  x: number;
+  y: number;
+  angle: number;
+};

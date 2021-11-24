@@ -188,3 +188,14 @@ input {
 button {
   @apply rounded-full border-0 text-base focus:outline-black px-5 py-2 bg-turquoise hover:bg-turquoise-light font-bold transition duration-200 focus:bg-turquoise-light;
 }
+
+#info {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.info-window {
+  background-color: white;
+  max-width: 300px;
+}
