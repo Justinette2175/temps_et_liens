@@ -33,6 +33,8 @@ class AttractiveFilter {
       positionAndAngle.y || window.innerHeight / 2,
       this.getRadius(),
       {
+        restitution: 0,
+        frictionAir: 1,
         label: JSON.stringify({
           bodyType: "staticDraggable",
           dataType: "tag",
@@ -62,7 +64,7 @@ class AttractiveFilter {
   }
 
   getRadius() {
-    return 100;
+    return 30;
   }
 
   display() {

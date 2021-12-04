@@ -32,6 +32,7 @@ class Person {
   makeBody(positionAndAngle: PositionAndAngle) {
     const body = Bodies.circle(positionAndAngle.x, positionAndAngle.y, 10, {
       friction: 0.9,
+      restitution: 0,
       collisionFilter: {
         group: 1
       },

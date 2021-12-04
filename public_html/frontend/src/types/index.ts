@@ -1,25 +1,33 @@
 import Person from "../objects/Person";
 
+export type CategoryId = string;
+export type PersonId = string;
+
 export type TagTypeData = {
   id: string;
   name: string;
 };
 
-export type TagData = {
+export type CategoryData = {
   id: string;
   name: string;
-  type: TagTypeData;
 };
 
-export type NewTagData = Partial<TagData>;
+export type NewTagData = Partial<CategoryData>;
 
 export type PersonData = {
   id: string;
   name: string;
-  tags: Array<TagData>;
+  categories: Array<CategoryData>;
 };
 
-export type NewPersonData = Partial<PersonData>;
+export type NewPersonData = Pick<PersonData, "name"> & {
+  category?: CategoryData["id"];
+};
+
+export type NewCategoryData = {
+  name: string;
+};
 
 export type Position = {
   x: number;

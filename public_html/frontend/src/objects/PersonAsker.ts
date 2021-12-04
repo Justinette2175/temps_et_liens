@@ -1,19 +1,19 @@
 import { v4 as uuid } from "uuid";
 import $ from "jquery";
 
-import { PersonData, TagData } from "../types";
+import { NewPersonData, CategoryData, PersonData } from "../types";
 import Asker from "./Asker";
 
 class PersonAsker extends Asker {
-  createPerson: (data: PersonData) => void;
+  createPerson: (data: NewPersonData) => void;
   onEnd: () => void;
   prompt: string;
-  tagData?: TagData;
+  tagData?: CategoryData;
   addedNames: Array<string>;
   constructor(
-    createPerson: (data: PersonData) => void,
+    createPerson: (data: NewPersonData) => Promise<PersonData>,
     end: () => void,
-    tagData?: TagData
+    tagData?: CategoryData
   ) {
     super();
     this.createPerson = createPerson;
@@ -27,18 +27,13 @@ class PersonAsker extends Asker {
   }
 
   onSubmit(e: Event) {
-    const tags = [];
-    if (this.tagData) {
-      tags.push(this.tagData);
-    }
     const name = String($(`#${this.id} input`).val());
     if (!name) {
       return;
     }
     this.createPerson({
       name: name || "",
-      id: uuid(),
-      tags
+      category: this.tagData?.id
     });
     this.addedNames.push(name);
     this.updateAddedNamesDisplay();

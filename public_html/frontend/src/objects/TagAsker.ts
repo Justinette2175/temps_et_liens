@@ -1,26 +1,23 @@
 import $ from "jquery";
-import { TagData } from "../types";
+import { NewCategoryData, CategoryData } from "../types";
 import Asker from "./Asker";
-import { v4 as uuid } from "uuid";
+import Store from "./Store";
 
 class TagAsker extends Asker {
-  addTag: (data: TagData) => void;
+  addTag: (data: NewCategoryData) => void;
   prompt: string;
   onDone: () => void;
-  existingTags: Array<TagData>;
-  selectTag: (data: TagData) => void;
+  selectTag: (data: CategoryData) => void;
 
   constructor(
-    addTag: (data: TagData) => void,
-    selectTag: (data: TagData) => void,
-    end: () => void,
-    existingTags?: Array<TagData>
+    addTag: (data: NewCategoryData) => void,
+    selectTag: (data: CategoryData) => void,
+    end: () => void
   ) {
     super();
     this.addTag = addTag;
     this.selectTag = selectTag;
     this.prompt = "Select or create a new a tag";
-    this.existingTags = existingTags || [];
     this.display();
     this.onDone = end;
   }
@@ -33,16 +30,14 @@ class TagAsker extends Asker {
     }
     try {
       this.addTag({
-        name,
-        id: uuid(),
-        type: { id: "2", name: "stage" }
+        name
       });
     } catch (e: any) {
       this.displayError(e.message);
     }
   }
 
-  onSelectExistingTag(tag: TagData) {
+  onSelectExistingTag(tag: CategoryData) {
     this.selectTag(tag);
   }
 
@@ -53,9 +48,9 @@ class TagAsker extends Asker {
           <button class="absolute right-2 top-2 rounded-full bg-transparent hover:bg-transparent">X</button>
           <p class="text-center text-xl">${this.prompt}</p>
           ${
-            this.existingTags.length > 0
+            Store.categories.length > 0
               ? `<div class="flex flex-wrap -my-1 -mx-1">
-              ${this.existingTags
+              ${Store.categories
                 .map(
                   (t) =>
                     `<div class="prompt-tag my-1 mx-1 py-1 px-2 rounded-lg bg-green-light hover:bg-green cursor-pointer" data-tag-id="${t.id}">${t.name}</div>`
@@ -75,12 +70,11 @@ class TagAsker extends Asker {
     `);
 
     $(`#${this.id} .prompt-tag`).on("click", (e) => {
-      console.log("clicked");
       const $domTag = $(e.target);
       const tagId = $domTag.data("tag-id");
-      const selectedTag = this.existingTags.find(
-        (t) => t.id === tagId
-      ) as TagData;
+      const selectedTag = Store.categories.find(
+        (t) => t.id == tagId
+      ) as CategoryData;
       this.onSelectExistingTag(selectedTag);
     });
 

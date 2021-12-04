@@ -1,7 +1,7 @@
-import { PersonData, TagData, PositionAndAngle } from "../types";
+import { PersonData, CategoryData, PositionAndAngle } from "../types";
 import Person from "./Person";
-import $ from "jquery";
-import { Engine, Runner, Events } from "matter-js";
+import $, { timers } from "jquery";
+import Matter, { Engine, Runner, Events, World } from "matter-js";
 import AttractiveFilter from "./AttractiveFilter";
 import Boundary from "./Boundary";
 
@@ -28,12 +28,13 @@ class Visualization {
   graphicalTagFilters: Array<GraphicalTagFilter>;
   graphicalPersonInstances: Array<GraphicalPersonInstance>;
   getStoredPersonById: (id: string) => PersonData | undefined;
-  getStoredTagById: (id: string) => TagData | undefined;
+  getStoredTagById: (id: string) => CategoryData | undefined;
   engine: Engine;
   runner: Runner;
   draw: any;
   persons: Person[];
   attractiveFilters: AttractiveFilter[];
+  filtersConstraints: Matter.Constraint[];
   boundaries: {
     top: Boundary;
     right: Boundary;
@@ -42,10 +43,11 @@ class Visualization {
   };
   constructor(
     getStoredPersonById: (id: string) => PersonData | undefined,
-    getStoredTagById: (id: string) => TagData | undefined
+    getStoredTagById: (id: string) => CategoryData | undefined
   ) {
     this.graphicalTagFilters = [];
     this.graphicalPersonInstances = [];
+    this.filtersConstraints = [];
     this.getStoredPersonById = getStoredPersonById;
     this.getStoredTagById = getStoredTagById;
     this.engine = Engine.create({ gravity: { y: 0 } });
@@ -106,6 +108,18 @@ class Visualization {
       this.engine.world,
       { name: tagName, id }
     );
+    if (this.attractiveFilters.length > 0) {
+      const newConstraint = Matter.Constraint.create({
+        bodyA: newAttractiveFilter.body,
+        bodyB: this.attractiveFilters[this.attractiveFilters.length - 1].body,
+        length: 300,
+        stiffness: 0.2
+      });
+      World.add(this.engine.world, newConstraint);
+      this.filtersConstraints.push(newConstraint);
+    }
+    // this.attractiveFilters.forEach((filter) => {
+    // });
     this.attractiveFilters.push(newAttractiveFilter);
   }
 
@@ -129,16 +143,16 @@ class Visualization {
   }
 
   handlePersonHover(personId: string, position: { x: number; y: number }) {
-    const data = this.getStoredPersonById(personId);
-    if (data) {
-      this.displayInfo<PersonData>(data, position);
+    const personData = this.getStoredPersonById(personId);
+    if (personData) {
+      this.displayInfo<PersonData>(personData, position);
     }
   }
 
   handleTagFilterHover(tagId: string, position: { x: number; y: number }) {
-    const data = this.getStoredTagById(tagId);
-    if (data) {
-      this.displayInfo<TagData>(data, position);
+    const categoryData = this.getStoredPersonById(tagId);
+    if (categoryData) {
+      this.displayInfo<CategoryData>(categoryData, position);
     }
   }
 }
