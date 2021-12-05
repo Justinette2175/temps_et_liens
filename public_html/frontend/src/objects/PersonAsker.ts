@@ -59,7 +59,7 @@ class PersonAsker extends Asker {
             </form>
             <p class="opacity-75"></p>
           </div>
-          <button>Done with this category</button>
+          <button class="form-button">Done with this category</button>
         </div>
       </div>
     `);

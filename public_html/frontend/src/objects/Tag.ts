@@ -1,66 +1,49 @@
-import { Position, TagData } from "../types";
+import { Position, CategoryData } from "../types";
+import $ from "jquery";
 
-const X_PADDING = 10;
+const COMMON_CLASSES =
+  "tag-button rounded-full border-0 text-base px-5 py-2 font-bold transition duration-200";
 
 class Tag {
   localDraw: any;
-  data: TagData;
-  relativePosition: Position;
-  elements: {
-    rect: any;
-    text: any;
-  };
-
+  data: CategoryData;
+  element: JQuery<HTMLElement>;
+  parent: JQuery<HTMLElement>;
+  selected: boolean;
+  onClick: (newVisibility: boolean) => void;
   constructor(
-    draw: any,
-    data: TagData,
-    relativePosition?: Position,
-    displayOnCreate?: boolean
+    data: CategoryData,
+    parent: JQuery<HTMLElement>,
+    onClick: (newVisibility: boolean) => void
   ) {
     this.data = data;
-    this.localDraw = draw.group();
-    this.elements = {
-      rect: null,
-      text: null
-    };
-    this.relativePosition = relativePosition || { x: 0, y: 0 };
-    if (displayOnCreate) {
-      this.display();
+    this.parent = parent;
+    this.element = this.display();
+    this.updateSelectedStyle();
+    this.selected = true;
+    this.onClick = onClick;
+  }
+
+  updateSelectedStyle() {
+    this.element.removeClass();
+    if (this.selected) {
+      this.element.addClass(`${COMMON_CLASSES} bg-turquoise`);
+    } else {
+      this.element.addClass(`${COMMON_CLASSES} bg-turquoise-light`);
     }
   }
 
-  getWidth() {
-    return this.elements.rect?.width();
-  }
-
-  getHeight() {
-    return this.elements.rect?.height();
-  }
-
-  hide() {
-    this.localDraw.hide();
-  }
-
-  show() {
-    this.localDraw.show();
-  }
-
   display() {
-    this.elements.text = this.localDraw
-      .text(this.data.name)
-      .attr({ y: 20, x: X_PADDING });
-    const textWidth = this.elements.text.length();
-    this.elements.rect = this.localDraw
-      .rect(textWidth + X_PADDING * 2, 30)
-      .attr({ fill: "#ffab91" });
-    this.elements.text.before(this.elements.rect);
-  }
-
-  moveTo(location: Position) {
-    this.localDraw.transform({
-      translateX: location.x,
-      translateY: location.y
+    const element = $(
+      `<button data-tag-id=${this.data.id} >${this.data.name}</button>`
+    );
+    element.on("click", () => {
+      this.selected = !this.selected;
+      this.updateSelectedStyle();
+      this.onClick(this.selected);
     });
+    this.parent.append(element);
+    return element;
   }
 }
 export default Tag;

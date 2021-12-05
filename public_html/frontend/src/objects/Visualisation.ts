@@ -1,4 +1,10 @@
-import { PersonData, CategoryData, PositionAndAngle } from "../types";
+import {
+  PersonData,
+  CategoryData,
+  PositionAndAngle,
+  CategoryId,
+  PersonId
+} from "../types";
 import {
   getNonOverlappingCirclePosition,
   getClosestValidPosition
@@ -33,33 +39,69 @@ type GraphicalTagFilter = {
 class Visualization {
   graphicalTagFilters: Array<GraphicalTagFilter>;
   graphicalPersonInstances: Array<GraphicalPersonInstance>;
-  getStoredPersonById: (id: string) => PersonData | undefined;
-  getStoredTagById: (id: string) => CategoryData | undefined;
   draw: any;
   persons: Person[];
   attractiveFilters: AttractiveFilter[];
+  ondragPersonOnCategory: (categoryId: CategoryId, personId: PersonId) => void;
+  draggedPerson?: Person;
   constructor(
-    getStoredPersonById: (id: string) => PersonData | undefined,
-    getStoredTagById: (id: string) => CategoryData | undefined
+    ondragPersonOnCategory: (categoryId: CategoryId, personId: PersonId) => void
   ) {
     this.graphicalTagFilters = [];
     this.graphicalPersonInstances = [];
-    this.getStoredPersonById = getStoredPersonById;
-    this.getStoredTagById = getStoredTagById;
     this.draw = SVG().addTo("#svg").size(window.innerWidth, window.innerHeight);
     this.persons = [];
     this.attractiveFilters = [];
+    this.ondragPersonOnCategory = ondragPersonOnCategory;
+    this.setupListeners();
   }
 
-  addPerson(id: string, name: string, tagId: string = "main") {
-    const newPerson = new Person(this.draw, {
-      name,
-      id,
-      filterId: tagId
+  setupListeners() {
+    $(document).on("mousemove", (e) => {
+      if (this.draggedPerson) {
+        this.draggedPerson.circle.moveBodyTo({ x: e.pageX, y: e.pageY });
+      }
     });
-    const categoryVisual = this.attractiveFilters.find((f) => f.id === tagId);
+    $(document).on("mouseup", (e) => {
+      if (this.draggedPerson) {
+        e.preventDefault();
+        const categoryId = $(e.target).data("tag-id");
+        this.ondragPersonOnCategory(categoryId, this.draggedPerson.id);
+        this.draggedPerson.circle.resetPosition();
+        this.draggedPerson = undefined;
+      }
+    });
+  }
+
+  addPerson(id: string, name: string, categoryId: string = "main") {
+    const newPerson = new Person(
+      this.draw,
+      {
+        name,
+        id,
+        categoryId
+      },
+      undefined,
+      (isMousedOver: boolean) => {
+        this.persons.forEach((p) => {
+          if (p.id === id) {
+            p.toggleActive(isMousedOver);
+          }
+        });
+      },
+      (dragging: boolean) => {
+        if (dragging) {
+          this.draggedPerson = newPerson;
+        } else {
+          this.draggedPerson = undefined;
+        }
+      }
+    );
+    const categoryVisual = this.attractiveFilters.find(
+      (f) => f.id === categoryId
+    );
     const personsInCategoryVisuals = this.persons.filter(
-      (p) => p.filterId === tagId
+      (p) => p.categoryId === categoryId
     );
     if (!categoryVisual) {
       return;
@@ -78,7 +120,7 @@ class Visualization {
       },
       newPerson.circle._r
     );
-    newPerson.circle.moveTo(position.x, position.y);
+    newPerson.moveTo(position);
     newPerson.display();
     this.persons.push(newPerson);
   }
@@ -102,36 +144,28 @@ class Visualization {
     if (!position) {
       console.log("could not get a good position");
     } else {
-      newAttractiveFilter.circle.moveTo(position.x, position.y);
+      newAttractiveFilter.circle.moveTo({ x: position.x, y: position.y });
       newAttractiveFilter.display();
       this.attractiveFilters.push(newAttractiveFilter);
     }
   }
 
-  update() {}
-
-  displayInfo<DataType>(data: DataType, position: { x: number; y: number }) {
-    $("#info").append(`
-      <div class="info-window" style="transform: translate(${position.x}px, ${
-      position.y
-    }px)">
-        ${JSON.stringify(data)}
-      </div>  
-    `);
+  updateCategoryVisibility(categoryId: CategoryId, newVisible: boolean) {
+    this.attractiveFilters.forEach((f) => {
+      if (f.id === categoryId) {
+        if (newVisible) {
+          f.display();
+        } else {
+          f.hide();
+        }
+      }
+    });
   }
 
-  handlePersonHover(personId: string, position: { x: number; y: number }) {
-    const personData = this.getStoredPersonById(personId);
-    if (personData) {
-      this.displayInfo<PersonData>(personData, position);
-    }
-  }
-
-  handleTagFilterHover(tagId: string, position: { x: number; y: number }) {
-    const categoryData = this.getStoredPersonById(tagId);
-    if (categoryData) {
-      this.displayInfo<CategoryData>(categoryData, position);
-    }
+  destroy() {
+    $("#info").empty();
+    $("#svg").empty();
+    this.draw.clear();
   }
 }
 

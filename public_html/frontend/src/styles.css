@@ -179,6 +179,10 @@ body {
   right: 0;
 }
 
+#tags {
+  @apply fixed top-0 left-0;
+}
+
 .prompt > div {
   background: rgb(242, 206, 216);
   background: linear-gradient(
@@ -199,6 +203,12 @@ button {
 }
 
 #info {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+#hovers {
   position: fixed;
   top: 0;
   left: 0;

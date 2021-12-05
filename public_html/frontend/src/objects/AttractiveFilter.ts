@@ -7,6 +7,7 @@ class AttractiveFilter {
   circle: Circle;
   name: string;
   id: string;
+  text?: JQuery<HTMLElement>;
   constructor(
     draw: any,
     { name, id }: { name: string; id: string },
@@ -25,25 +26,35 @@ class AttractiveFilter {
   }
 
   showName() {
+    if (this.text) {
+      this.text.remove();
+    }
     const element = $("<p>");
     element.append(this.name);
     element.addClass("fixed inline-block text-center");
     element.css("max-width", `${this.circle._r * 2 - 5}px`);
-    $("body").append(element);
+    $("#info").append(element);
     const width = element.width() || 0;
     const height = element.height() || 0;
     element.css(
       "transform",
       `translate(${this.circle._x - width / 2}px, ${
-        this.circle._y - this.circle._r - height / 2
+        this.circle._y - height / 2
       }px)`
     );
-    console.log("width", width);
+    this.text = element;
   }
 
   display() {
     this.circle.display();
     this.showName();
+  }
+
+  hide() {
+    this.circle.hide();
+    if (this.text) {
+      this.text.remove();
+    }
   }
 }
 

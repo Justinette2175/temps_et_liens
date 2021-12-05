@@ -1,58 +1,72 @@
 import { BodyLabel, Position, PositionAndAngle } from "../types";
 import { Body, World, Bodies } from "matter-js";
 import Circle from "./Circle";
+import PersonLabel from "./PersonLabel";
 
 class Person {
   name: string;
   id: string;
-  filterId: string;
+  categoryId: string;
   circle: Circle;
+  personLabel: PersonLabel;
+  onToggleMouseOver?: (isMousedOver: boolean) => void;
+  onDrag?: () => void;
   constructor(
     draw: any,
-    { id, name, filterId }: { name: string; id: string; filterId: string },
-    positionAndAngle: PositionAndAngle = {
+    data: { name: string; id: string; categoryId: string },
+    position: Position = {
       x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-      angle: 0
-    }
+      y: window.innerHeight / 2
+    },
+    onToggleMouseOver?: (isMousedOver: boolean) => void,
+    onDragToggle?: (dragging: boolean) => void
   ) {
-    this.name = name;
-    this.id = id;
-    this.filterId = filterId;
+    this.name = data.name;
+    this.id = data.id;
+    this.categoryId = data.categoryId;
+    this.onToggleMouseOver = onToggleMouseOver;
     this.circle = new Circle(
       draw.group(),
-      positionAndAngle.x,
-      positionAndAngle.y,
-      10,
-      { fill: "#fff" }
+      position.x,
+      position.y,
+      14,
+      { fill: "#fff" },
+      this.handleToggleMouseOver.bind(this),
+      (dragging: boolean) => {
+        if (onDragToggle) {
+          onDragToggle(dragging);
+        }
+      }
     );
+    this.personLabel = new PersonLabel(data, {
+      x: this.circle._x,
+      y: this.circle._y
+    });
     this.update();
   }
 
-  makeBody(positionAndAngle: PositionAndAngle) {
-    const body = Bodies.circle(positionAndAngle.x, positionAndAngle.y, 10, {
-      friction: 0.9,
-      restitution: 0,
-      collisionFilter: {
-        group: 1
-      },
-      label: JSON.stringify({
-        filterId: this.filterId,
-        bodyType: "regular",
-        dataType: "person",
-        dataId: this.id
-      } as BodyLabel)
-    });
-    return body;
+  handleToggleMouseOver(isMousedOver: boolean) {
+    if (isMousedOver) {
+      this.personLabel.show();
+    } else {
+      this.personLabel.hide();
+    }
+    if (this.onToggleMouseOver) {
+      this.onToggleMouseOver(isMousedOver);
+    }
   }
 
-  moveTo(positionAndAngle: PositionAndAngle) {
-    this.circle._x = positionAndAngle.x;
-    this.circle._y = positionAndAngle.y;
+  moveTo(position: Position) {
+    this.circle.moveTo(position);
+    this.personLabel.moveTo(position);
   }
 
   display() {
     this.circle.display();
+  }
+
+  toggleActive(isActive: boolean) {
+    this.circle.body.attr({ fill: isActive ? "#aa0000" : "#ffffff" });
   }
 
   update() {

@@ -1,3 +1,5 @@
+import { Position } from "../types";
+
 class Circle {
   _x: number;
   _y: number;
@@ -5,41 +7,73 @@ class Circle {
   localDraw: any;
   body: any;
   attr: any;
-  constructor(draw: any, x: number, y: number, r: number, attr: any = {}) {
+  onToggleMouseOver?: (isMousedOver: boolean) => void;
+  onDragToggle?: (dragging: boolean) => void;
+  constructor(
+    draw: any,
+    x: number,
+    y: number,
+    r: number,
+    attr: any = {},
+    onToggleMouseOver?: (isMousedOver: boolean) => void,
+    onDragToggle?: (dragging: boolean) => void
+  ) {
     this.localDraw = draw;
     this._x = x;
     this._y = y;
     this._r = r;
     this.body = undefined;
     this.attr = attr;
+    this.onToggleMouseOver = onToggleMouseOver;
+    this.onDragToggle = onDragToggle;
   }
 
-  moveTo(x: number, y: number) {
-    this._x = x;
-    this._y = y;
+  moveTo(position: Position) {
+    this._x = position.x;
+    this._y = position.y;
+    this.moveBodyTo(position);
+  }
+
+  moveBodyTo(position: Position) {
     if (this.body) {
       this.body.transform({
-        translateX: this._x - this._r,
-        translateY: this._y - this._r
+        translateX: position.x - this._r,
+        translateY: position.y - this._r
       });
     }
   }
 
   display() {
+    if (this.body) {
+      this.body.remove();
+    }
     this.body = this.localDraw.circle(this._r * 2).attr(this.attr);
-    this.moveTo(this._x, this._y);
-    // this.localDraw
-    //   .text((add: any) => {
-    //     add
-    //       .tspan(
-    //         this.name
-    //           .split(" ")
-    //           .map((c) => c.charAt(0))
-    //           .join("")
-    //       )
-    //       .newLine();
-    //   })
-    //   .attr({ width: this._r * 2 });
+    if (this.onToggleMouseOver) {
+      this.body.on("mouseover", () =>
+        (this.onToggleMouseOver as (isMousedOver: boolean) => void)(true)
+      );
+      this.body.on("mouseout", () => {
+        (this.onToggleMouseOver as (isMousedOver: boolean) => void)(false);
+      });
+    }
+    if (this.onDragToggle) {
+      this.body.on("mouseup", () => {
+        (this.onDragToggle as (isDragged: boolean) => void)(false);
+        this.resetPosition();
+      });
+      this.body.on("mousedown", () => {
+        (this.onDragToggle as (isDragged: boolean) => void)(true);
+      });
+    }
+    this.moveTo({ x: this._x, y: this._y });
+  }
+
+  resetPosition() {
+    this.moveBodyTo({ x: this._x, y: this._y });
+  }
+
+  hide() {
+    this.body.remove();
   }
 }
 

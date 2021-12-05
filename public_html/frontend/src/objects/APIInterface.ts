@@ -65,14 +65,6 @@ class APIInterface {
       });
   }
 
-  getPerson(id: PersonId): Promise<PersonData | undefined> {
-    return Promise.resolve(undefined);
-  }
-
-  getCategory(id: CategoryId) {
-    return Promise.resolve(undefined);
-  }
-
   getPersonsInCategory(categoryId: CategoryId) {
     fetch(devURL + `getAllPersonsInCategory.php?categoryId=${categoryId}`)
       .then((res) => {
@@ -126,6 +118,24 @@ class APIInterface {
     const formData = new FormData();
     formData.append("name", newCategory.name);
     return fetch(devURL + "newCategory.php", {
+      method: "POST",
+      body: formData,
+      mode: "cors"
+    })
+      .then((res) => {
+        if (!res || res.status !== 200) {
+          return;
+        }
+        return res.json();
+      })
+      .then((p: APICategory) => p);
+  }
+
+  addCategoryToPerson(catgoryId: CategoryId, personId: PersonId) {
+    const formData = new FormData();
+    formData.append("category_id", catgoryId);
+    formData.append("person_id", personId);
+    return fetch(devURL + "addCategoryToPerson.php", {
       method: "POST",
       body: formData,
       mode: "cors"

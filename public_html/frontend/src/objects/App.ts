@@ -1,40 +1,62 @@
+import $ from "jquery";
 import {
   PersonData,
   CategoryData,
   NewPersonData,
-  NewCategoryData
+  NewCategoryData,
+  CategoryId,
+  PersonId
 } from "../types";
 import AskerManager from "./AskerManager";
 import Visualization from "./Visualisation";
 import APIInterface from "./APIInterface";
 import Store from "./Store";
+import Tag from "./Tag";
 
 class App {
-  draw: any;
   askerManager?: AskerManager;
-  visualization: Visualization;
+  visualization?: Visualization;
+  tags: Tag[];
   constructor() {
-    this.visualization = new Visualization(
-      Store.getPersonById,
-      Store.getCategoryById
-    );
     this.askerManager = undefined;
+    this.tags = [];
     APIInterface.getCategories().then((categories) => {
       Store.setCategories(categories);
-      categories.forEach((tag) => {
-        this.visualization.addTagFilter(tag.name, tag.id);
+      Store.categories.forEach((tag) => {
+        const tagWrapper = $("#tags");
+        this.tags.push(new Tag(tag, tagWrapper, this.draw.bind(this)));
       });
       APIInterface.getPersons().then((persons) => {
         if (!persons) {
           return;
         }
         Store.setPersons(persons);
-        persons.forEach((person) => {
-          person.categories.forEach((category) => {
-            this.visualization.addPerson(person.id, person.name, category.id);
-          });
-        });
+        this.draw();
         this.launchAsk();
+      });
+    });
+  }
+
+  draw() {
+    if (this.visualization) {
+      this.visualization.destroy();
+    }
+
+    this.visualization = new Visualization(this.addCategoryToPerson);
+    this.tags.forEach((t) => {
+      if (t.selected) {
+        const category = Store.getCategoryById(t.data.id);
+        if (category && this.visualization) {
+          this.visualization.addTagFilter(category.name, category.id);
+        }
+      }
+    });
+    Store.persons.forEach((person) => {
+      person.categories.forEach((category) => {
+        const tag = this.tags.find((t) => t.data.id === category.id);
+        if (tag && tag.selected && this.visualization) {
+          this.visualization.addPerson(person.id, person.name, category.id);
+        }
       });
     });
   }
@@ -43,7 +65,9 @@ class App {
     return APIInterface.addPerson(data).then((newPerson) => {
       Store.addPerson(newPerson);
       newPerson.categories.forEach((category) => {
-        this.visualization.addPerson(newPerson.id, data.name, category.id);
+        if (this.visualization) {
+          this.visualization.addPerson(newPerson.id, data.name, category.id);
+        }
       });
       return newPerson;
     });
@@ -52,9 +76,20 @@ class App {
   addTag(data: NewCategoryData): Promise<CategoryData> {
     return APIInterface.addCategory(data).then((newCategory) => {
       Store.addCategory(newCategory);
-      this.visualization.addTagFilter(newCategory.name, newCategory.id);
+      if (this.visualization) {
+        this.visualization.addTagFilter(newCategory.name, newCategory.id);
+      }
       return newCategory;
     });
+  }
+
+  addCategoryToPerson(categoryId: CategoryId, personId: PersonId) {
+    console.log("adding tag", categoryId, "to person", personId);
+    return APIInterface.addCategoryToPerson(categoryId, personId).then(
+      (newId) => {
+        console.log("yey added it!", newId);
+      }
+    );
   }
 
   closeAsk() {
