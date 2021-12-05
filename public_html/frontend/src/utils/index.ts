@@ -1,11 +1,133 @@
 export const getRandomScreenPosition = (
-  objectWidth: number,
-  objectHeight: number
+  radius: number,
+  minDistanceFromEdge: number = 0
 ) => {
   return {
-    x: Math.random() * (window.innerWidth - (objectWidth || 0)),
-    y: Math.random() * (window.innerHeight - (objectHeight || 0))
+    x: randomBetween(
+      radius + minDistanceFromEdge,
+      window.innerWidth - radius - minDistanceFromEdge
+    ),
+    y: randomBetween(
+      radius + minDistanceFromEdge,
+      window.innerHeight - radius - minDistanceFromEdge
+    )
   };
+};
+
+const randomBetween = (min: number, max: number) => {
+  return Math.random() * (max - min) + min;
+};
+
+const distanceBetween = (
+  pointA: { x: number; y: number },
+  pointB: { x: number; y: number }
+) => {
+  return Math.sqrt(
+    Math.pow(pointA.x - pointB.x, 2) + Math.pow(pointA.y - pointB.y, 2)
+  );
+};
+
+export const isNonOverlappingCircleScreenPosition = (
+  existingCircles: {
+    x: number;
+    y: number;
+    r: number;
+  }[],
+  x: number,
+  y: number,
+  r: number
+) => {
+  let isValid = true;
+  for (let i = 0; i < existingCircles.length; i++) {
+    const circle = existingCircles[i];
+    if (
+      distanceBetween({ x, y }, { x: circle.x, y: circle.y }) <
+      r + circle.r
+    ) {
+      isValid = false;
+      break;
+    }
+  }
+  return isValid;
+};
+
+export const getNonOverlappingCirclePosition = (
+  existingCircles: {
+    x: number;
+    y: number;
+    r: number;
+  }[],
+  r: number,
+  spaceBetweenItems: number = 0
+) => {
+  let trials = 0;
+  const tryOnce: any = () => {
+    const testPosition = getRandomScreenPosition(r, 50);
+    if (
+      !isNonOverlappingCircleScreenPosition(
+        existingCircles,
+        testPosition.x,
+        testPosition.y,
+        r + spaceBetweenItems
+      )
+    ) {
+      if (trials < 500) {
+        trials++;
+        return tryOnce();
+      } else {
+        return undefined;
+      }
+    }
+    return testPosition;
+  };
+  return tryOnce();
+};
+
+export const getClosestValidPosition = (
+  existingCircles: {
+    x: number;
+    y: number;
+    r: number;
+  }[],
+  circleToSurround: {
+    x: number;
+    y: number;
+    r: number;
+  },
+  r: number
+) => {
+  let trials = 0;
+  let radiusLevel = 0;
+  const tryOnce: any = () => {
+    const randomRadianAngle = randomBetween(0, 2 * Math.PI);
+    const relativeOrthoPos = convertRadiansToOrtho(
+      circleToSurround.r + r + radiusLevel * 2 * r,
+      randomRadianAngle
+    );
+    const testPosition = {
+      x: circleToSurround.x + relativeOrthoPos.x,
+      y: circleToSurround.y + relativeOrthoPos.y
+    };
+    if (
+      !isNonOverlappingCircleScreenPosition(
+        existingCircles,
+        testPosition.x,
+        testPosition.y,
+        r
+      )
+    ) {
+      if (trials < 500) {
+        trials++;
+        return tryOnce();
+      } else {
+        trials = 0;
+        radiusLevel++;
+        return tryOnce();
+      }
+    }
+    return testPosition;
+  };
+  return tryOnce();
 };
 
 export const convertRadiansToOrtho = (radius: number, angle: number) => {
@@ -14,13 +136,6 @@ export const convertRadiansToOrtho = (radius: number, angle: number) => {
     y: radius * Math.sin(angle)
   };
 };
-
-class Base {
-  base: boolean;
-  constructor() {
-    this.base = true;
-  }
-}
 
 export const generateRosacePositions = (
   centerElementRadius: number,

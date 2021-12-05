@@ -1,11 +1,17 @@
 import { PersonData, CategoryData, PositionAndAngle } from "../types";
+import {
+  getNonOverlappingCirclePosition,
+  getClosestValidPosition
+} from "../utils";
 import Person from "./Person";
-import $, { timers } from "jquery";
-import Matter, { Engine, Runner, Events, World } from "matter-js";
+import $ from "jquery";
 import AttractiveFilter from "./AttractiveFilter";
-import Boundary from "./Boundary";
 
 const typedWindow: any = window as any;
+
+const SPACE_BETWEEN_CATEGORY_AND_PERSON = 5;
+const SPACE_BETWEEN_CATEGORIES = 200;
+const SPACE_BETWEEN_PERSONS = 2;
 
 const SVG = typedWindow.SVG;
 
@@ -29,108 +35,80 @@ class Visualization {
   graphicalPersonInstances: Array<GraphicalPersonInstance>;
   getStoredPersonById: (id: string) => PersonData | undefined;
   getStoredTagById: (id: string) => CategoryData | undefined;
-  engine: Engine;
-  runner: Runner;
   draw: any;
   persons: Person[];
   attractiveFilters: AttractiveFilter[];
-  filtersConstraints: Matter.Constraint[];
-  boundaries: {
-    top: Boundary;
-    right: Boundary;
-    bottom: Boundary;
-    left: Boundary;
-  };
   constructor(
     getStoredPersonById: (id: string) => PersonData | undefined,
     getStoredTagById: (id: string) => CategoryData | undefined
   ) {
     this.graphicalTagFilters = [];
     this.graphicalPersonInstances = [];
-    this.filtersConstraints = [];
     this.getStoredPersonById = getStoredPersonById;
     this.getStoredTagById = getStoredTagById;
-    this.engine = Engine.create({ gravity: { y: 0 } });
-    this.runner = Runner.create();
-    Runner.run(this.runner, this.engine);
-    Events.on(this.runner, "afterUpdate", this.update.bind(this));
     this.draw = SVG().addTo("#svg").size(window.innerWidth, window.innerHeight);
     this.persons = [];
     this.attractiveFilters = [];
-    this.boundaries = {
-      top: new Boundary(
-        this.engine.world,
-        this.draw,
-        0,
-        0,
-        window.innerWidth,
-        300
-      ),
-      right: new Boundary(
-        this.engine.world,
-        this.draw,
-        window.innerWidth,
-        0,
-        300,
-        window.innerHeight
-      ),
-      bottom: new Boundary(
-        this.engine.world,
-        this.draw,
-        0,
-        window.innerHeight,
-        window.innerWidth,
-        300
-      ),
-      left: new Boundary(
-        this.engine.world,
-        this.draw,
-        0,
-        0,
-        300,
-        window.innerHeight
-      )
-    };
   }
 
   addPerson(id: string, name: string, tagId: string = "main") {
-    const newPerson = new Person(this.draw, this.engine.world, {
+    const newPerson = new Person(this.draw, {
       name,
       id,
       filterId: tagId
     });
+    const categoryVisual = this.attractiveFilters.find((f) => f.id === tagId);
+    const personsInCategoryVisuals = this.persons.filter(
+      (p) => p.filterId === tagId
+    );
+    if (!categoryVisual) {
+      return;
+    }
+
+    const position = getClosestValidPosition(
+      personsInCategoryVisuals.map((i) => ({
+        x: i.circle._x,
+        y: i.circle._y,
+        r: i.circle._r + SPACE_BETWEEN_PERSONS
+      })),
+      {
+        x: categoryVisual.circle._x,
+        y: categoryVisual.circle._y,
+        r: categoryVisual.circle._r + SPACE_BETWEEN_CATEGORY_AND_PERSON
+      },
+      newPerson.circle._r
+    );
+    newPerson.circle.moveTo(position.x, position.y);
+    newPerson.display();
     this.persons.push(newPerson);
   }
 
   addTagFilter(tagName: string, id: string) {
-    const newAttractiveFilter = new AttractiveFilter(
-      this.draw,
-      this.engine.world,
-      { name: tagName, id }
+    const newAttractiveFilter = new AttractiveFilter(this.draw, {
+      name: tagName,
+      id
+    });
+    const position = getNonOverlappingCirclePosition(
+      [
+        ...this.attractiveFilters.map((f) => ({
+          x: f.circle._x,
+          r: f.circle._r,
+          y: f.circle._y
+        }))
+      ],
+      newAttractiveFilter.circle._r,
+      SPACE_BETWEEN_CATEGORIES
     );
-    if (this.attractiveFilters.length > 0) {
-      const newConstraint = Matter.Constraint.create({
-        bodyA: newAttractiveFilter.body,
-        bodyB: this.attractiveFilters[this.attractiveFilters.length - 1].body,
-        length: 300,
-        stiffness: 0.2
-      });
-      World.add(this.engine.world, newConstraint);
-      this.filtersConstraints.push(newConstraint);
+    if (!position) {
+      console.log("could not get a good position");
+    } else {
+      newAttractiveFilter.circle.moveTo(position.x, position.y);
+      newAttractiveFilter.display();
+      this.attractiveFilters.push(newAttractiveFilter);
     }
-    // this.attractiveFilters.forEach((filter) => {
-    // });
-    this.attractiveFilters.push(newAttractiveFilter);
   }
 
-  update() {
-    this.persons.forEach((p) => {
-      p.update();
-    });
-    this.attractiveFilters.forEach((f) => {
-      f.update();
-    });
-  }
+  update() {}
 
   displayInfo<DataType>(data: DataType, position: { x: number; y: number }) {
     $("#info").append(`

@@ -21,7 +21,16 @@ require('dbscripts/openDB.php');
                 $new_person_id_to_insert = $new_person_id;
                 $insertPersonCategoryQuery = "INSERT INTO persons_categories(category_id, person_id) VALUES('$category_id', '$new_person_id_to_insert')";
                 $file_db->exec($insertPersonCategoryQuery);
-                $new_person['categories'] = array($category_id);
+                $selectedQuery="SELECT name, id FROM categories WHERE categories.id = '$category_id'";
+                $result = $file_db->query($selectedQuery);
+                if (!$result) die("Cannot execute query.");
+            
+                //go through every row (as an associative array and append to the array)
+                while($row = $result->fetch(PDO::FETCH_ASSOC))
+                {
+                    $outArr[] = $row;
+                }
+                $new_person['categories'] = $outArr;
             }
             
             echo(json_encode($new_person));

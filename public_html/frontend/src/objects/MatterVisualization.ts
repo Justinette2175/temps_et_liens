@@ -63,7 +63,6 @@ class MatterVisualization {
       dataType: "tag",
       dataId: tagId
     };
-    console.log("tag filter", labelObject);
     return this.addAttractiveCircle({
       radius: 60,
       label: JSON.stringify(labelObject),

@@ -40,11 +40,9 @@ class App {
   }
 
   addPerson(data: NewPersonData): Promise<PersonData> {
-    console.log("App:AddPerson", data);
     return APIInterface.addPerson(data).then((newPerson) => {
       Store.addPerson(newPerson);
       newPerson.categories.forEach((category) => {
-        console.log("adding person for tag", category);
         this.visualization.addPerson(newPerson.id, data.name, category.id);
       });
       return newPerson;
@@ -54,7 +52,6 @@ class App {
   addTag(data: NewCategoryData): Promise<CategoryData> {
     return APIInterface.addCategory(data).then((newCategory) => {
       Store.addCategory(newCategory);
-      console.log("new category", newCategory);
       this.visualization.addTagFilter(newCategory.name, newCategory.id);
       return newCategory;
     });

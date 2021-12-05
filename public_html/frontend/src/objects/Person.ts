@@ -1,16 +1,14 @@
 import { BodyLabel, Position, PositionAndAngle } from "../types";
 import { Body, World, Bodies } from "matter-js";
+import Circle from "./Circle";
 
 class Person {
-  body: Body;
   name: string;
-  circle: any;
-  localDraw: any;
   id: string;
   filterId: string;
+  circle: Circle;
   constructor(
     draw: any,
-    world: World,
     { id, name, filterId }: { name: string; id: string; filterId: string },
     positionAndAngle: PositionAndAngle = {
       x: window.innerWidth / 2,
@@ -21,11 +19,13 @@ class Person {
     this.name = name;
     this.id = id;
     this.filterId = filterId;
-    this.localDraw = draw.group();
-    this.circle = null;
-    this.body = this.makeBody(positionAndAngle);
-    World.add(world, this.body);
-    this.display();
+    this.circle = new Circle(
+      draw.group(),
+      positionAndAngle.x,
+      positionAndAngle.y,
+      10,
+      { fill: "#fff" }
+    );
     this.update();
   }
 
@@ -46,40 +46,20 @@ class Person {
     return body;
   }
 
-  getRadius() {
-    return 10;
-  }
-
-  getHeight() {
-    return this.getRadius() * 2;
-  }
-
-  getWidth() {
-    return this.getRadius() * 2;
+  moveTo(positionAndAngle: PositionAndAngle) {
+    this.circle._x = positionAndAngle.x;
+    this.circle._y = positionAndAngle.y;
   }
 
   display() {
-    const radius = this.getRadius();
-    this.circle = this.localDraw.circle(radius * 2).attr({ fill: "#fff" });
-    this.localDraw
-      .text((add: any) => {
-        add
-          .tspan(
-            this.name
-              .split(" ")
-              .map((c) => c.charAt(0))
-              .join("")
-          )
-          .newLine();
-      })
-      .attr({ width: radius * 2 });
+    this.circle.display();
   }
 
   update() {
-    this.localDraw.transform({
-      translateX: this.body.position.x - this.getRadius(),
-      translateY: this.body.position.y - this.getRadius()
-    });
+    // this.localDraw.transform({
+    //   translateX: this.body.position.x - this.getRadius(),
+    //   translateY: this.body.position.y - this.getRadius()
+    // });
   }
 }
 

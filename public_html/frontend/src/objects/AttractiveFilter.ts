@@ -1,87 +1,49 @@
-import Matter, { Bodies, Body, World } from "matter-js";
-import MatterAttractors from "matter-attractors";
 import { PositionAndAngle } from "../types";
-import { parseBodyLabel } from "../utils/parseBodyLabel";
-
-Matter.use(MatterAttractors);
+import Circle from "./Circle";
+import $ from "jquery";
 
 class AttractiveFilter {
-  body: Body;
   localDraw: any;
-  circle: any;
+  circle: Circle;
   name: string;
   id: string;
   constructor(
     draw: any,
-    world: World,
     { name, id }: { name: string; id: string },
     positionAndAngle: PositionAndAngle = { x: 0, y: 0, angle: 0 }
   ) {
     this.name = name;
     this.id = id;
     this.localDraw = draw.group();
-    this.circle = null;
-    this.body = this.makeBody(positionAndAngle);
-    World.add(world, this.body);
-    this.display();
-    this.update();
-  }
-
-  makeBody(positionAndAngle: PositionAndAngle) {
-    const body = Bodies.circle(
-      positionAndAngle.x || window.innerWidth / 2,
-      positionAndAngle.y || window.innerHeight / 2,
-      this.getRadius(),
-      {
-        restitution: 0,
-        frictionAir: 1,
-        label: JSON.stringify({
-          bodyType: "staticDraggable",
-          dataType: "tag",
-          dataId: this.id
-        }),
-        plugin: {
-          attractors: [
-            (bodyA: Body, bodyB: Body) => {
-              if (bodyA.label && bodyB.label) {
-                const bodyATagId = parseBodyLabel(bodyA.label).dataId;
-                const bodyBTagId = parseBodyLabel(bodyB.label).filterId;
-                if (bodyATagId === bodyBTagId) {
-                  var force = {
-                    x: (bodyA.position.x - bodyB.position.x) * 1e-6,
-                    y: (bodyA.position.y - bodyB.position.y) * 1e-6
-                  };
-                  Body.applyForce(bodyB, bodyB.position, force);
-                }
-              }
-            }
-          ]
-        }
-      }
+    this.circle = new Circle(
+      draw.group(),
+      positionAndAngle.x,
+      positionAndAngle.y,
+      60,
+      { fill: "rgba(255, 255, 255, 0.2)" }
     );
-    // Matter.Body.setStatic(body, true);
-    return body;
   }
 
-  getRadius() {
-    return 30;
+  showName() {
+    const element = $("<p>");
+    element.append(this.name);
+    element.addClass("fixed inline-block text-center");
+    element.css("max-width", `${this.circle._r * 2 - 5}px`);
+    $("body").append(element);
+    const width = element.width() || 0;
+    const height = element.height() || 0;
+    element.css(
+      "transform",
+      `translate(${this.circle._x - width / 2}px, ${
+        this.circle._y - this.circle._r - height / 2
+      }px)`
+    );
+    console.log("width", width);
   }
 
   display() {
-    const radius = this.getRadius();
-    this.circle = this.localDraw.circle(radius * 2).attr({ fill: "#fff" });
-    this.localDraw
-      .text((add: any) => {
-        add.tspan(this.name).newLine();
-      })
-      .attr({ width: radius * 2 });
-  }
-
-  update() {
-    this.localDraw.transform({
-      translateX: this.body.position.x - this.getRadius(),
-      translateY: this.body.position.y - this.getRadius()
-    });
+    this.circle.display();
+    this.showName();
   }
 }
 

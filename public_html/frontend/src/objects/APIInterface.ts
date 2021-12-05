@@ -111,7 +111,6 @@ class APIInterface {
       mode: "cors"
     })
       .then((res) => {
-        console.log("res is", res);
         if (!res || res.status !== 200) {
           console.log("Error: ", res.json());
           return;
@@ -119,8 +118,7 @@ class APIInterface {
         return res.json();
       })
       .then((p: PersonData) => {
-        console.log("New person added", p);
-        return p;
+        return { ...p };
       });
   }
 
