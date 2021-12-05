@@ -20,6 +20,7 @@ class App {
   constructor() {
     this.askerManager = undefined;
     this.tags = [];
+    this.setupMenu();
     APIInterface.getCategories().then((categories) => {
       Store.setCategories(categories);
       Store.categories.forEach((tag) => {
@@ -42,7 +43,7 @@ class App {
       this.visualization.destroy();
     }
 
-    this.visualization = new Visualization(this.addCategoryToPerson);
+    this.visualization = new Visualization(this.addCategoryToPerson.bind(this));
     if (
       this.tags.reduce((acc, t) => {
         if (t.selected) acc++;
@@ -50,8 +51,8 @@ class App {
       }, 0) === 0
     ) {
       this.visualization.addTagFilter("Everyone", "main", {
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2
+        x: this.visualization.dimensions.w / 2,
+        y: this.visualization.dimensions.h / 2
       });
       Store.persons.forEach((person) => {
         this.visualization?.addPerson(person.id, person.name, "main");
@@ -92,6 +93,8 @@ class App {
   addTag(data: NewCategoryData): Promise<CategoryData> {
     return APIInterface.addCategory(data).then((newCategory) => {
       Store.addCategory(newCategory);
+      const tagWrapper = $("#tags");
+      this.tags.push(new Tag(newCategory, tagWrapper, this.draw.bind(this)));
       if (this.visualization) {
         this.visualization.addTagFilter(newCategory.name, newCategory.id);
       }
@@ -100,10 +103,19 @@ class App {
   }
 
   addCategoryToPerson(categoryId: CategoryId, personId: PersonId) {
-    console.log("adding tag", categoryId, "to person", personId);
     return APIInterface.addCategoryToPerson(categoryId, personId).then(
-      (newId) => {
-        console.log("yey added it!", newId);
+      (newPerson) => {
+        console.log("new person", newPerson);
+        Store.updatePerson(newPerson);
+        console.log("updated person", this.visualization);
+        if (this.visualization) {
+          console.log("visualization exists");
+          this.visualization.addPerson(
+            newPerson.id,
+            newPerson.name,
+            categoryId
+          );
+        }
       }
     );
   }
@@ -118,6 +130,13 @@ class App {
       this.addPerson.bind(this),
       this.closeAsk.bind(this)
     );
+  }
+
+  setupMenu() {
+    $("#logout-btn").on("click", () => {
+      console.log("cliked");
+      APIInterface.logout();
+    });
   }
 }
 

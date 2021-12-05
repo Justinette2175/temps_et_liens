@@ -14,10 +14,7 @@ class Person {
   constructor(
     draw: any,
     data: { name: string; id: string; categoryId: string },
-    position: Position = {
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2
-    },
+    position: Position = { x: 0, y: 0 },
     onToggleMouseOver?: (isMousedOver: boolean) => void,
     onDragToggle?: (dragging: boolean) => void
   ) {

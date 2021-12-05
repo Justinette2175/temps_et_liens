@@ -1,4 +1,5 @@
 <?php 
+include("./partials/redirectToLoginIfNoSession.php");
 header('Access-Control-Allow-Origin: *');
 require("helpers.php");
 require('dbscripts/openDB.php');
@@ -11,9 +12,12 @@ require('dbscripts/openDB.php');
     } else {
         try {
             $file_db->exec("PRAGMA foreign_keys = on");
-            $insertQuery = "INSERT INTO persons_categories(category_id, person_id) VALUES('$category_id', '$person_id') RETURNING category_id";
-            $file_db->exec($insertQuery);
-            echo(json_encode($file_db->lastInsertId()));
+            $insert_stmt = $file_db->prepare("INSERT INTO persons_categories(category_id, person_id) VALUES(?, ?)");
+            $insert_stmt->execute(array($category_id, $person_id));
+            $person = array(
+                'person_id'-> $person_id
+            );
+            echo(json_encode($person));
             $file_db = null;
         }   catch(PDOException $e) {
             echo $e->getMessage();

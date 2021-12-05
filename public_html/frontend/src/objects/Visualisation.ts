@@ -4,7 +4,8 @@ import {
   PositionAndAngle,
   CategoryId,
   PersonId,
-  Position
+  Position,
+  Dimensions
 } from "../types";
 import {
   getNonOverlappingCirclePosition,
@@ -45,12 +46,23 @@ class Visualization {
   attractiveFilters: AttractiveFilter[];
   ondragPersonOnCategory: (categoryId: CategoryId, personId: PersonId) => void;
   draggedPerson?: Person;
+  dimensions: Dimensions;
+  position: Position;
   constructor(
     ondragPersonOnCategory: (categoryId: CategoryId, personId: PersonId) => void
   ) {
     this.graphicalTagFilters = [];
     this.graphicalPersonInstances = [];
-    this.draw = SVG().addTo("#svg").size(window.innerWidth, window.innerHeight);
+    const parent = $("#visualization");
+    this.dimensions = {
+      w: parent.width() || 0,
+      h: parent.height() || 0
+    };
+    this.position = {
+      y: parent.offset()?.top || 0,
+      x: parent.offset()?.left || 0
+    };
+    this.draw = SVG().addTo("#svg").size(window.innerWidth, this.dimensions.h);
     this.persons = [];
     this.attractiveFilters = [];
     this.ondragPersonOnCategory = ondragPersonOnCategory;
@@ -60,7 +72,10 @@ class Visualization {
   setupListeners() {
     $(document).on("mousemove", (e) => {
       if (this.draggedPerson) {
-        this.draggedPerson.circle.moveBodyTo({ x: e.pageX, y: e.pageY });
+        this.draggedPerson.circle.moveBodyTo({
+          x: e.pageX - this.position.x,
+          y: e.pageY - this.position.y
+        });
       }
     });
     $(document).on("mouseup", (e) => {
@@ -75,6 +90,7 @@ class Visualization {
   }
 
   addPerson(id: string, name: string, categoryId: string = "main") {
+    console.log("adding person to visualization");
     const newPerson = new Person(
       this.draw,
       {
@@ -99,10 +115,10 @@ class Visualization {
       }
     );
     const categoryVisual = this.attractiveFilters.find(
-      (f) => f.id === categoryId
+      (f) => f.id == categoryId
     );
     const personsInCategoryVisuals = this.persons.filter(
-      (p) => p.categoryId === categoryId
+      (p) => p.categoryId == categoryId
     );
     if (!categoryVisual) {
       return;
@@ -121,6 +137,7 @@ class Visualization {
       },
       newPerson.circle._r
     );
+    console.log("new person.move to", position);
     newPerson.moveTo(position);
     newPerson.display();
     this.persons.push(newPerson);
@@ -142,7 +159,8 @@ class Visualization {
           }))
         ],
         newAttractiveFilter.circle._r,
-        SPACE_BETWEEN_CATEGORIES
+        SPACE_BETWEEN_CATEGORIES,
+        this.dimensions
       );
     if (!position) {
       console.log("could not get a good position");

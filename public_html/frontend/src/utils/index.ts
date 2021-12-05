@@ -1,15 +1,18 @@
+import { Dimensions } from "../types";
+
 export const getRandomScreenPosition = (
   radius: number,
-  minDistanceFromEdge: number = 0
+  minDistanceFromEdge: number = 0,
+  screenDimensions: Dimensions
 ) => {
   return {
     x: randomBetween(
       radius + minDistanceFromEdge,
-      window.innerWidth - radius - minDistanceFromEdge
+      screenDimensions.w - radius - minDistanceFromEdge
     ),
     y: randomBetween(
       radius + minDistanceFromEdge,
-      window.innerHeight - radius - minDistanceFromEdge
+      screenDimensions.h - radius - minDistanceFromEdge
     )
   };
 };
@@ -58,11 +61,12 @@ export const getNonOverlappingCirclePosition = (
     r: number;
   }[],
   r: number,
-  spaceBetweenItems: number = 0
+  spaceBetweenItems: number = 0,
+  screenDimensions: Dimensions
 ) => {
   let trials = 0;
   const tryOnce: any = () => {
-    const testPosition = getRandomScreenPosition(r, 50);
+    const testPosition = getRandomScreenPosition(r, 50, screenDimensions);
     if (
       !isNonOverlappingCircleScreenPosition(
         existingCircles,

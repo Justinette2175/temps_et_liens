@@ -28,4 +28,17 @@ function insertPerson(string $name) {
     }
 }
 
+function getPersonAndCategories(string $personId) {
+    $sth = $file_db->prepare('SELECT categories.name AS category_name, categories.id as category_id
+        FROM persons_categories 
+        INNER JOIN categories ON categories.id = persons_categories.category_id
+        WHERE persons_categories.person_id = ?
+        ');
+    $sth->execute(array($person_id));
+    $result = $sth->fetchAll();
+
+    return $result;
+
+}
+
 ?>

@@ -14,13 +14,6 @@ type APICategory = {
   id: CategoryId;
 };
 
-type APIPerson = {
-  categories_ids: string;
-  person_name: string;
-  person_id: PersonId;
-  categories_names: string;
-};
-
 class APIInterface {
   constructor() {}
 
@@ -37,31 +30,18 @@ class APIInterface {
       });
   }
 
-  getPersons() {
-    return fetch(devURL + "getPersons.php")
+  getPersons(id?: string) {
+    return fetch(devURL + `getPersons.php${id ? "?id=" + id : ""}`)
       .then((res) => {
         if (!res || res.status !== 200) {
           return;
         }
-        return res.json() as unknown as APIPerson[];
+        console.log("res", res);
+        return res.json();
       })
       .then((apiPersons) => {
-        return apiPersons?.map((apiPerson) => {
-          const personCategoriesIds = apiPerson.categories_ids
-            ? apiPerson.categories_ids.split(",")
-            : [];
-          const personCategoriesNames = apiPerson.categories_names
-            ? apiPerson.categories_names.split(",")
-            : [];
-          return {
-            name: apiPerson.person_name,
-            id: apiPerson.person_id,
-            categories: personCategoriesIds.map((id, index) => ({
-              id,
-              name: personCategoriesNames[index]
-            }))
-          };
-        }) as PersonData[];
+        console.log("persons", apiPersons);
+        return apiPersons as unknown as PersonData[];
       });
   }
 
@@ -146,7 +126,14 @@ class APIInterface {
         }
         return res.json();
       })
-      .then((p: APICategory) => p);
+      .then(() => {
+        return this.getPersons(personId);
+      })
+      .then((persons) => persons[0]);
+  }
+
+  logout() {
+    return fetch(devURL + "logout.php");
   }
 }
 

@@ -14,11 +14,13 @@ try {
     onboarding_stage TEXT
   )';
 
+  $file_db ->exec($createUsersTableQuery);
+
   $createPersonsTableQuery = 'CREATE TABLE IF NOT EXISTS persons(
     id INTEGER PRIMARY KEY NOT NULL, 
     name TEXT UNIQUE,
     user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
   )';
 
   $file_db ->exec($createPersonsTableQuery);
@@ -27,7 +29,7 @@ try {
     id INTEGER PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     user_id INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
   )';
   $file_db ->exec($createCategoriesTableQuery);
 

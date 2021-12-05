@@ -17,6 +17,11 @@ class Store {
     this.persons.push(person);
   }
 
+  updatePerson(person: PersonData) {
+    const index = this.persons.findIndex((p) => p.id === person.id);
+    this.persons.splice(index, 1, person);
+  }
+
   getPersonById(id: PersonId) {
     return this.persons.find((p) => p.id === id);
   }

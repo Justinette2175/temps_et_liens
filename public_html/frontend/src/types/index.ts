@@ -46,3 +46,8 @@ export type BodyLabel = {
   dataType?: "person" | "tag";
   dataId: string;
 };
+
+export type Dimensions = {
+  w: number;
+  h: number;
+};

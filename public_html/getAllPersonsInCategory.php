@@ -1,4 +1,5 @@
 <?php 
+include("./partials/redirectToLoginIfNoSession.php");
 require('./dbScripts/openDB.php');
 
 if($_SERVER['REQUEST_METHOD'] == 'GET') {

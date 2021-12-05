@@ -14,13 +14,14 @@ class Tag {
   constructor(
     data: CategoryData,
     parent: JQuery<HTMLElement>,
-    onClick: (newVisibility: boolean) => void
+    onClick: (newVisibility: boolean) => void,
+    selected: boolean = false
   ) {
     this.data = data;
     this.parent = parent;
     this.element = this.display();
     this.updateSelectedStyle();
-    this.selected = false;
+    this.selected = selected;
     this.onClick = onClick;
   }
 

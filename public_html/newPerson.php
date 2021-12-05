@@ -1,4 +1,5 @@
 <?php 
+include("./partials/redirectToLoginIfNoSession.php");
 header('Access-Control-Allow-Origin: *');
 require("helpers.php");
 require('dbscripts/openDB.php');
@@ -6,12 +7,13 @@ require('dbscripts/openDB.php');
  if($_SERVER['REQUEST_METHOD'] == 'POST') {
     $person_name = $_POST['name'];
     $category_id = $_POST['category'];
+    $user_id = $_SESSION['user_id'];
     if (empty($person_name)) {
         die("Cannot create person without a name");
     } else {
         try {
             $file_db->exec("PRAGMA foreign_keys = on");
-            $insertpersonQuery = "INSERT INTO persons(name) VALUES('$person_name')";
+            $insertpersonQuery = "INSERT INTO persons(name, user_id) VALUES('$person_name', '$user_id')";
             $file_db->exec($insertpersonQuery);
             $new_person = array();
             $new_person_id = $file_db->lastInsertId();
