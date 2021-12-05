@@ -20,16 +20,16 @@ class Tag {
     this.parent = parent;
     this.element = this.display();
     this.updateSelectedStyle();
-    this.selected = true;
+    this.selected = false;
     this.onClick = onClick;
   }
 
   updateSelectedStyle() {
     this.element.removeClass();
     if (this.selected) {
-      this.element.addClass(`${COMMON_CLASSES} bg-turquoise`);
+      this.element.addClass(`${COMMON_CLASSES} bg-green`);
     } else {
-      this.element.addClass(`${COMMON_CLASSES} bg-turquoise-light`);
+      this.element.addClass(`${COMMON_CLASSES}  bg-grey-light`);
     }
   }
 

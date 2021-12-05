@@ -6,6 +6,9 @@ module.exports = {
       transparent: "transparent",
       black: "#000",
       white: "#fff",
+      grey: {
+        light: "#ECEFF1"
+      },
       error: {
         DEFAULT: "#bb214d"
       },

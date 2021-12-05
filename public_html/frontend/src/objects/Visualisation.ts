@@ -3,7 +3,8 @@ import {
   CategoryData,
   PositionAndAngle,
   CategoryId,
-  PersonId
+  PersonId,
+  Position
 } from "../types";
 import {
   getNonOverlappingCirclePosition,
@@ -125,22 +126,24 @@ class Visualization {
     this.persons.push(newPerson);
   }
 
-  addTagFilter(tagName: string, id: string) {
+  addTagFilter(tagName: string, id: string, hardCodedPosition?: Position) {
     const newAttractiveFilter = new AttractiveFilter(this.draw, {
       name: tagName,
       id
     });
-    const position = getNonOverlappingCirclePosition(
-      [
-        ...this.attractiveFilters.map((f) => ({
-          x: f.circle._x,
-          r: f.circle._r,
-          y: f.circle._y
-        }))
-      ],
-      newAttractiveFilter.circle._r,
-      SPACE_BETWEEN_CATEGORIES
-    );
+    const position =
+      hardCodedPosition ||
+      getNonOverlappingCirclePosition(
+        [
+          ...this.attractiveFilters.map((f) => ({
+            x: f.circle._x,
+            r: f.circle._r,
+            y: f.circle._y
+          }))
+        ],
+        newAttractiveFilter.circle._r,
+        SPACE_BETWEEN_CATEGORIES
+      );
     if (!position) {
       console.log("could not get a good position");
     } else {

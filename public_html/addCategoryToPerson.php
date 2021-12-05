@@ -11,7 +11,7 @@ require('dbscripts/openDB.php');
     } else {
         try {
             $file_db->exec("PRAGMA foreign_keys = on");
-            $insertQuery = "INSERT INTO persons_categories(category_id, person_id) VALUES('$category_id', '$person_id')";
+            $insertQuery = "INSERT INTO persons_categories(category_id, person_id) VALUES('$category_id', '$person_id') RETURNING category_id";
             $file_db->exec($insertQuery);
             echo(json_encode($file_db->lastInsertId()));
             $file_db = null;

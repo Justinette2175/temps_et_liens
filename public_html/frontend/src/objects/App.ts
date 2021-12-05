@@ -43,6 +43,22 @@ class App {
     }
 
     this.visualization = new Visualization(this.addCategoryToPerson);
+    if (
+      this.tags.reduce((acc, t) => {
+        if (t.selected) acc++;
+        return acc;
+      }, 0) === 0
+    ) {
+      this.visualization.addTagFilter("Everyone", "main", {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2
+      });
+      Store.persons.forEach((person) => {
+        this.visualization?.addPerson(person.id, person.name, "main");
+      });
+      return;
+    }
+
     this.tags.forEach((t) => {
       if (t.selected) {
         const category = Store.getCategoryById(t.data.id);

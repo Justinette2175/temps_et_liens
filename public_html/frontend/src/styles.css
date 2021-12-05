@@ -198,7 +198,7 @@ input {
   font-family: "Cabin", sans-serif;
 }
 
-button {
+button.form-button {
   @apply rounded-full border-0 text-base focus:outline-black px-5 py-2 bg-turquoise hover:bg-turquoise-light font-bold transition duration-200 focus:bg-turquoise-light;
 }
 
