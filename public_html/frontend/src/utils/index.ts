@@ -75,7 +75,7 @@ export const getNonOverlappingCirclePosition = (
         r + spaceBetweenItems
       )
     ) {
-      if (trials < 500) {
+      if (trials < 1000) {
         trials++;
         return tryOnce();
       } else {

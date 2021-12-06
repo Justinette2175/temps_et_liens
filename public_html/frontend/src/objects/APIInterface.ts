@@ -36,11 +36,9 @@ class APIInterface {
         if (!res || res.status !== 200) {
           return;
         }
-        console.log("res", res);
         return res.json();
       })
       .then((apiPersons) => {
-        console.log("persons", apiPersons);
         return apiPersons as unknown as PersonData[];
       });
   }

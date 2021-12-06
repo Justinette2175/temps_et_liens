@@ -90,7 +90,6 @@ class Visualization {
   }
 
   addPerson(id: string, name: string, categoryId: string = "main") {
-    console.log("adding person to visualization");
     const newPerson = new Person(
       this.draw,
       {
@@ -137,7 +136,6 @@ class Visualization {
       },
       newPerson.circle._r
     );
-    console.log("new person.move to", position);
     newPerson.moveTo(position);
     newPerson.display();
     this.persons.push(newPerson);
