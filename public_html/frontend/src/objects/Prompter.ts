@@ -1,5 +1,6 @@
 import { CategoryData, CategoryId, PersonData } from "../types";
 import { PromptData } from "../utils/prompts";
+import Store from "./Store";
 import Prompt from "./Prompt";
 
 export type PrompterContext = {
@@ -66,21 +67,61 @@ class Prompter {
     }
   }
 
-  onAddPersonWithCategories(personName: string, categories?: CategoryId[]) {
-    return this.addPerson(
-      personName,
-      categories?.[0] === "___localCategory" && this.context.categories
-        ? this.context.categories.map((c) => c.id)
-        : []
-    ).then(() => {
-      return;
+  onAddPersonWithCategories(
+    personName: string,
+    categoryNames?: string[]
+  ): Promise<void> {
+    console.log("category names", categoryNames);
+    const categoryIds: string[] = [];
+    const missingCategoriesNames: string[] = [];
+    let addLocalCategories = false;
+    (categoryNames || []).forEach((cName) => {
+      if (cName === "___localCategory") {
+        addLocalCategories = true;
+        return;
+      }
+      const existingCategory = Store.getCategoryByName(cName);
+      console.log("existing ccategory", existingCategory);
+
+      if (existingCategory) {
+        categoryIds.push(existingCategory.id);
+        return;
+      }
+      missingCategoriesNames.push(cName);
+    });
+
+    console.log("missing categories", missingCategoriesNames);
+
+    const promises = missingCategoriesNames.map((cName) => {
+      return this.addCategory(cName);
+    });
+    console.log("new categories");
+
+    return Promise.all(promises).then((newCategories) => {
+      let personCategoryIds = [
+        ...categoryIds,
+        ...newCategories.map((c) => c.id)
+      ];
+      console.log("should add local");
+      if (addLocalCategories && this.context.categories) {
+        console.log("add local ccategories", this.context.categories);
+        personCategoryIds = [
+          ...personCategoryIds,
+          ...this.context.categories.map((c) => c.id)
+        ];
+      }
+      console.log("personCategoryIds", personCategoryIds);
+      return this.addPerson(personName, personCategoryIds).then(
+        () => undefined
+      );
     });
   }
 
   onAddCategoryAndMakeLocalCategory(categoryName: string) {
-    console.log("adding person", categoryName);
     return this.addCategory(categoryName).then((category: CategoryData) => {
+      console.log("adding category to local context");
       this.context.categories = [category];
+      console.log("this.content", this.context.categories);
     });
   }
 }

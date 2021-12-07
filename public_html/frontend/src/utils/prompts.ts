@@ -127,7 +127,7 @@ export const introPrompts: Record<string, PromptData> = {
         params: {
           onDo: {
             name: "addPersonWithCategories",
-            categoryNames: ["___localCategory"],
+            categoryNames: ["School", "___localCategory"],
             nextPromptId: "schoolPersons"
           }
         }

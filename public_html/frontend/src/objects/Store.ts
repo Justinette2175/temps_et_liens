@@ -26,6 +26,10 @@ class Store {
     return this.persons.find((p) => p.id === id);
   }
 
+  getCategoryByName(name: string) {
+    return this.categories.find((c) => c.name === name);
+  }
+
   getCategoryById(id: CategoryId) {
     return this.categories.find((c) => c.id === id);
   }

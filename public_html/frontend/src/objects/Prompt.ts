@@ -9,7 +9,7 @@ class Prompt {
   onClose: () => void;
   onAddPersonWithCategories: (
     personName: PersonId,
-    categories: CategoryId[]
+    categoryNames?: CategoryId[]
   ) => Promise<void>;
   onAddCategoryAndMakeLocalCategory: (categoryName: string) => Promise<void>;
   constructor(
@@ -19,7 +19,7 @@ class Prompt {
     onClose: () => void,
     onAddPersonWithCategories: (
       personName: string,
-      categories: CategoryId[]
+      categoryNames?: CategoryId[]
     ) => Promise<void>,
     onAddCategoryAndMakeLocalCategory: (categoryName: string) => Promise<void>
   ) {

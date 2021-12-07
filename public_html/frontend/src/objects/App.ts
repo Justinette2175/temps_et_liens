@@ -59,7 +59,7 @@ class App {
     if (this.noTagsSelected()) {
       this.visualization?.addPerson(person.id, person.name, "main");
     } else {
-      person.categories.forEach((category) => {
+      person.categories?.forEach((category) => {
         const tag = this.tags.find((t) => t.data.id === category.id);
         if (tag && tag.visible && this.visualization) {
           this.visualization.addPerson(person.id, person.name, category.id);

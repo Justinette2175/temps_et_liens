@@ -27,7 +27,7 @@ try {
 
   $createCategoriesTableQuery = 'CREATE TABLE IF NOT EXISTS categories(
     id INTEGER PRIMARY KEY NOT NULL,
-    name TEXT NOT NULL,
+    name TEXT UNIQUE NOT NULL,
     user_id INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
   )';

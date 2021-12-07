@@ -23,6 +23,7 @@ require('dbscripts/openDB.php');
             $new_person_id = $file_db->lastInsertId();
             $new_person['id'] = $new_person_id;
             $new_person['name'] = $person_name;
+            $new_person['categories'] = array();
 
             // IF CATEGORIES, MAKE LINK BETWEEN CATEGORIES AND PERSON GET THE FULL INFO OF EACH CATEGORY THAT WAS ADDED TO PERSON
             if (isset($category_ids)) {
