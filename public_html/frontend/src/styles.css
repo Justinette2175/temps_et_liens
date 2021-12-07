@@ -186,7 +186,7 @@ input {
 }
 
 button.app-button {
-  @apply rounded-full border-0 text-base px-5 py-2 bg-turquoise hover:bg-turquoise-light font-bold transition duration-200 focus:bg-turquoise-light;
+  @apply rounded-full border-0 text-base px-5 py-2 bg-turquoise-light hover:bg-turquoise font-bold transition duration-200 focus:bg-turquoise-light;
 }
 
 button.app-secondary-button {

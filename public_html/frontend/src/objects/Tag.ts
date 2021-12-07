@@ -21,8 +21,8 @@ class Tag {
     parent: JQuery<HTMLElement>,
     onVisibilityClick: (newVisibility: boolean) => void,
     onAddPersonClick: () => void,
-    visible: boolean = false,
-    selected: boolean = true
+    visible: boolean = true,
+    selected: boolean = false
   ) {
     this.data = data;
     this.parent = parent;

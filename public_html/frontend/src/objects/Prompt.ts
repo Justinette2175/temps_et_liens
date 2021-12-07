@@ -2,6 +2,8 @@ import $ from "jquery";
 import { CategoryId, PersonId, PrompterContext } from "../types";
 import { PromptText, PromptData } from "../utils/prompts";
 
+const CLOSE_TIMEOUT = 500;
+
 class Prompt {
   id: string;
   data: PromptData;
@@ -13,6 +15,7 @@ class Prompt {
   ) => Promise<void>;
   onAddCategoryAndMakeLocalCategory: (categoryName: string) => Promise<void>;
   context: PrompterContext;
+  $element?: JQuery<HTMLElement>;
   constructor(
     id: string,
     prompt: PromptData,
@@ -33,12 +36,13 @@ class Prompt {
     this.onAddPersonWithCategories = onAddPersonWithCategories;
     this.onAddCategoryAndMakeLocalCategory = onAddCategoryAndMakeLocalCategory;
     this.display();
+    this.appear();
   }
 
   display() {
     const $wrapper = $(`<div class="prompt pt-48" id="${this.id}"></div>`);
     const $content = $(
-      ` <div class="container mx-auto max-w-lg grid gap-6 rounded-lg shadow-lg px-12 pb-12 pt-6"></div>`
+      ` <div class="container mx-auto max-w-lg grid gap-6 rounded-lg shadow-lg px-12 pb-12 pt-6 transition duration-1000 opacity-0"></div>`
     );
     const $closeBtnWrapper = $('<div class="flex justify-end"></div>');
     const $closeBtn = $("<button>X</button>");
@@ -62,11 +66,28 @@ class Prompt {
     }
 
     $wrapper.append($content);
+    this.$element = $content;
     $("#prompts").append($wrapper);
   }
 
   clear() {
     $("#prompts").empty();
+  }
+
+  appear() {
+    this.$element?.removeClass("opacity-0");
+    this.$element?.addClass("opacity-100");
+  }
+
+  close() {
+    this.$element?.removeClass("opacity-100");
+    this.$element?.addClass("opacity-0");
+    return new Promise((res, rej) => {
+      setTimeout(() => {
+        this.clear();
+        res(undefined);
+      }, CLOSE_TIMEOUT);
+    });
   }
 
   addActionsToContent($content: JQuery<HTMLElement>) {

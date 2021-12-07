@@ -44,28 +44,35 @@ class Prompter {
   }
 
   onNextPrompt(nextPromptId: string) {
+    const makeNextPrompt = () => {
+      const data = this.promptData[nextPromptId];
+      this.currentPrompt = new Prompt(
+        nextPromptId,
+        data,
+        this.context,
+        this.onNextPrompt.bind(this),
+        this.onClose.bind(this),
+        this.onAddPersonWithCategories.bind(this),
+        this.onAddCategoryAndMakeLocalCategory.bind(this)
+      );
+    };
     if (this.currentPrompt) {
-      this.currentPrompt.clear();
+      this.currentPrompt.close().then(() => {
+        makeNextPrompt();
+      });
+    } else {
+      makeNextPrompt();
     }
-    const data = this.promptData[nextPromptId];
-    this.currentPrompt = new Prompt(
-      nextPromptId,
-      data,
-      this.context,
-      this.onNextPrompt.bind(this),
-      this.onClose.bind(this),
-      this.onAddPersonWithCategories.bind(this),
-      this.onAddCategoryAndMakeLocalCategory.bind(this)
-    );
   }
 
   onClose() {
     if (this.currentPrompt) {
-      this.currentPrompt.clear();
-      this.currentPrompt = undefined;
-    }
-    if (this.close) {
-      this.close();
+      this.currentPrompt.close().then(() => {
+        this.currentPrompt = undefined;
+        if (this.close) {
+          this.close();
+        }
+      });
     }
   }
 
