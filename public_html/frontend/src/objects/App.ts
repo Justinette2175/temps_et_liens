@@ -33,16 +33,17 @@ class App {
         this.tags.push(new Tag(tag, tagWrapper, this.draw.bind(this)));
       });
       APIInterface.getPersons().then((persons) => {
+        console.log("persons", persons);
         if (!persons) {
           return;
         }
         Store.setPersons(persons);
         this.draw();
         this.launchAsk();
+        this.setupAddPersonButtonClick();
+        this.setupAddCategoryButtonClick();
       });
     });
-    this.setupAddPersonButtonClick();
-    this.setupAddCategoryButtonClick();
   }
 
   noTagsSelected() {
@@ -147,7 +148,7 @@ class App {
         return this.addTag({ name });
       },
       (name: string, categories: CategoryId[]) => {
-        return this.addPerson({ name, category: categories[0] });
+        return this.addPerson({ name, categories });
       },
       () => {
         this.prompter = undefined;

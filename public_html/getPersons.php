@@ -1,12 +1,12 @@
 <?php 
-include("./partials/redirectToLoginIfNoSession.php");
-header('Access-Control-Allow-Origin: *');
-require('./dbScripts/openDB.php');
+    include("./partials/redirectToLoginIfNoSession.php");
+    header('Access-Control-Allow-Origin: *');
+    require('./dbScripts/openDB.php');
 
 if($_SERVER['REQUEST_METHOD'] == 'GET') {
     $person_id = $_GET["id"];
     $outArr = array();
-    $user_id = $_SESSION['user_id'];
+    $user_id = $_SESSION["user_id"];
     try {
         if (!empty($person_id)) {
             $statement = $file_db->prepare("SELECT persons.name AS person_name, GROUP_CONCAT(categories.name) AS categories_names,  GROUP_CONCAT(categories.id) as categories_ids, persons.id AS person_id

@@ -1,6 +1,6 @@
 <?php
-  session_start();
   include("../partials/redirectToLoginIfNoSession.php");
+  session_start();
 ?>
 <!DOCTYPE html>
 <html>

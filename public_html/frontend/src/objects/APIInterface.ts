@@ -72,8 +72,8 @@ class APIInterface {
   addPerson(newPerson: NewPersonData): Promise<PersonData> {
     const formData = new FormData();
     formData.append("name", newPerson.name);
-    if (newPerson.category) {
-      formData.append("category", newPerson.category);
+    if (newPerson.categories && newPerson.categories.length > 0) {
+      formData.append("categories", newPerson.categories.join(","));
     }
     return fetch(devURL + "newPerson.php", {
       method: "POST",
@@ -131,7 +131,7 @@ class APIInterface {
   }
 
   logout() {
-    return fetch(devURL + "logout.php");
+    location.replace("../logout.php");
   }
 }
 

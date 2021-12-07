@@ -12,8 +12,9 @@ require('dbscripts/openDB.php');
     } else {
         try {
             $file_db->exec("PRAGMA foreign_keys = on");
-            $insertCategoryQuery = "INSERT INTO categories(name, user_id) VALUES('$category_name', '$user_id')";
-            $file_db->exec($insertCategoryQuery);
+            $insert_statement = $file_db->prepare("INSERT INTO categories(name, user_id) VALUES(?, ?)");
+            $insert_statement->execute(array($category_name, $user_id));
+            
             $new_category = array();
             $new_category['id'] = $file_db->lastInsertId();
             $new_category['name'] = $category_name;

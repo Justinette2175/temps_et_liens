@@ -22,7 +22,7 @@ export type PersonData = {
 };
 
 export type NewPersonData = Pick<PersonData, "name"> & {
-  category?: CategoryData["id"];
+  categories?: CategoryData["id"][];
 };
 
 export type NewCategoryData = {

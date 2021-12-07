@@ -5,8 +5,7 @@ require('./dbScripts/openDB.php');
 
 if($_SERVER['REQUEST_METHOD'] == 'GET') {
     $outArr = array();
-    $_SESSION['user_id'] = '1';
-    $user_id = $_SESSION['user_id'];
+    $user_id = $_SESSION["user_id"];
     try {
 
         $selectedQuery='SELECT * FROM categories WHERE categories.user_id = ?';
