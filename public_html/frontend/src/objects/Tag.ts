@@ -27,7 +27,7 @@ class Tag {
     this.selected = selected;
     [this.element, this.$viewToggle, this.$selectedToggle] = this.display();
     this.updateVisibleStyle();
-    this.updateSelectedStyle();
+    // this.updateSelectedStyle();
     this.onClick = onClick;
   }
 
@@ -62,11 +62,11 @@ class Tag {
       this.updateVisibleStyle();
       this.onClick(this.visible);
     });
-    $selectedToggle.on("click", () => {
-      this.selected = !this.selected;
-      this.updateSelectedStyle();
-      // this.onClick(this.visible);
-    });
+    // $selectedToggle.on("click", () => {
+    //   this.selected = !this.selected;
+    //   this.updateSelectedStyle();
+    //   // this.onClick(this.visible);
+    // });
     $element.prepend($viewToggle);
     $element.prepend($selectedToggle);
     this.parent.append($element);

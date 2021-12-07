@@ -1,29 +1,32 @@
 import TagAsker from "./TagAsker";
 import PersonAsker from "./PersonAsker";
 
-import { PersonData, TagData } from "../types";
+import {
+  NewCategoryData,
+  NewPersonData,
+  CategoryData,
+  CategoryId,
+  PersonData
+} from "../types";
 
 class AskerManager {
   asker?: TagAsker | PersonAsker;
-  createTag: (data: TagData) => void;
-  createPerson: (data: PersonData) => void;
+  createTag: (data: NewCategoryData) => Promise<CategoryData>;
+  createPerson: (data: NewPersonData) => Promise<PersonData>;
   close: () => void;
-  existingTags: Array<TagData>;
   constructor(
-    createTag: (data: TagData) => void,
-    createPerson: (data: PersonData) => void,
-    close: () => void,
-    existingTags?: Array<TagData>
+    createTag: (data: NewCategoryData) => Promise<CategoryData>,
+    createPerson: (data: NewPersonData) => Promise<PersonData>,
+    close: () => void
   ) {
     this.createTag = createTag;
     this.createPerson = createPerson;
-    this.existingTags = existingTags || [];
     this.close = close;
+
     this.asker = new TagAsker(
       this.onCreateTag.bind(this),
       this.onSelectTag.bind(this),
-      this.onClose.bind(this),
-      this.existingTags
+      this.onClose.bind(this)
     );
   }
 
@@ -33,13 +36,13 @@ class AskerManager {
     }
   }
 
-  onCreateTag(data: TagData) {
-    this.existingTags.push(data);
-    this.createTag(data);
-    this.onSelectTag(data);
+  onCreateTag(data: NewCategoryData) {
+    this.createTag(data).then((newCategory) => {
+      this.onSelectTag(newCategory);
+    });
   }
 
-  onSelectTag(data: TagData) {
+  onSelectTag(data: CategoryData) {
     this.unsetCurrentAsker();
     this.asker = new PersonAsker(
       this.createPerson.bind(this),
@@ -58,8 +61,7 @@ class AskerManager {
     this.asker = new TagAsker(
       this.onCreateTag.bind(this),
       this.onSelectTag.bind(this),
-      this.onClose.bind(this),
-      this.existingTags
+      this.onClose.bind(this)
     );
   }
 }
