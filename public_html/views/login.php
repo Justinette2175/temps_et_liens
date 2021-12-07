@@ -1,7 +1,5 @@
 <?php
     header('Access-Control-Allow-Origin: *');
-    echo "My session is";
-    echo $_SESSION["user_id"];
 ?>
 <html>
 <body>
