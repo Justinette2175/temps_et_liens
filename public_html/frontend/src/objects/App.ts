@@ -30,10 +30,13 @@ class App {
       Store.setCategories(categories);
       Store.categories.forEach((tag) => {
         const tagWrapper = $("#tags");
-        this.tags.push(new Tag(tag, tagWrapper, this.draw.bind(this)));
+        this.tags.push(
+          new Tag(tag, tagWrapper, this.draw.bind(this), () => {
+            this.openAddPersonToCategoryModal(tag);
+          })
+        );
       });
       APIInterface.getPersons().then((persons) => {
-        console.log("persons", persons);
         if (!persons) {
           return;
         }
@@ -107,7 +110,14 @@ class App {
     return APIInterface.addCategory(data).then((newCategory) => {
       Store.addCategory(newCategory);
       const tagWrapper = $("#tags");
-      const newTag = new Tag(newCategory, tagWrapper, this.draw.bind(this));
+      const newTag = new Tag(
+        newCategory,
+        tagWrapper,
+        this.draw.bind(this),
+        () => {
+          this.openAddPersonToCategoryModal(newCategory);
+        }
+      );
       this.tags.push(newTag);
 
       if (this.visualization && newTag.visible) {
@@ -189,6 +199,12 @@ class App {
     });
     const $wrapper = $("#app-buttons");
     $wrapper.prepend($addPersonButton);
+  }
+
+  openAddPersonToCategoryModal(category: CategoryData) {
+    this.makePrompterWithPrompts(addPersonPrompts, "addPerson", {
+      categories: [category]
+    });
   }
 }
 

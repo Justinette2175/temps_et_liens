@@ -13,7 +13,8 @@ module.exports = {
         DEFAULT: "#bb214d"
       },
       text: {
-        DEFAULT: "#2F4D70"
+        DEFAULT: "#2F4D70",
+        dark: "#0F1A25"
       },
       pink: {
         light: "#F2CED8",

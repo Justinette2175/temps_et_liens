@@ -156,7 +156,7 @@ export const introPrompts: Record<string, PromptData> = {
       {
         type: "timeout",
         params: {
-          time: "5000",
+          time: "4000",
           onDo: {
             nextPromptId: "schoolNameFirst"
           }
@@ -513,8 +513,13 @@ export const addPersonPrompts: Record<string, PromptData> = {
   addPerson: {
     text: [
       {
-        tag: "<p>",
-        content: "Type someone's name to add them to your collection."
+        tag: '<h2 class="text-2xl">',
+        content: "Make a new person"
+      },
+      {
+        tag: '<p class="font-bold">',
+        content:
+          "Type the name of someone you associate with that category and press Enter."
       }
     ],
     actions: [
@@ -523,16 +528,8 @@ export const addPersonPrompts: Record<string, PromptData> = {
         params: {
           onDo: {
             name: "addPersonWithCategories",
-            nextPromptId: "addPerson"
-          }
-        }
-      },
-      {
-        type: "button",
-        params: {
-          text: "Close",
-          onDo: {
-            nextPromptId: ""
+            nextPromptId: "addPerson",
+            categoryNames: ["___localCategory"]
           }
         }
       }

@@ -13,22 +13,26 @@ class Tag {
   parent: JQuery<HTMLElement>;
   visible: boolean;
   selected: boolean;
-  onClick: (newVisibility: boolean) => void;
+  onVisibilityClick: (newVisibility: boolean) => void;
+  onAddPersonClick: () => void;
+
   constructor(
     data: CategoryData,
     parent: JQuery<HTMLElement>,
-    onClick: (newVisibility: boolean) => void,
+    onVisibilityClick: (newVisibility: boolean) => void,
+    onAddPersonClick: () => void,
     visible: boolean = false,
-    selected: boolean = false
+    selected: boolean = true
   ) {
     this.data = data;
     this.parent = parent;
     this.visible = visible;
     this.selected = selected;
+    this.onAddPersonClick = onAddPersonClick;
+    this.onVisibilityClick = onVisibilityClick;
     [this.element, this.$viewToggle, this.$selectedToggle] = this.display();
     this.updateVisibleStyle();
     // this.updateSelectedStyle();
-    this.onClick = onClick;
   }
 
   updateSelectedStyle() {
@@ -57,18 +61,23 @@ class Tag {
     );
     const $viewToggle = $('<button class="mx-1"></button>');
     const $selectedToggle = $('<button class="mx-1"></button>');
+    const $addToggle = $(
+      '<button class="mx-1"><i class="fas fa-plus"></i></button>'
+    );
+    $addToggle.on("click", this.onAddPersonClick);
     $viewToggle.on("click", () => {
       this.visible = !this.visible;
       this.updateVisibleStyle();
-      this.onClick(this.visible);
+      this.onVisibilityClick(this.visible);
     });
     // $selectedToggle.on("click", () => {
     //   this.selected = !this.selected;
     //   this.updateSelectedStyle();
-    //   // this.onClick(this.visible);
+    //   // this.onVisibilityClick(this.visible);
     // });
     $element.prepend($viewToggle);
-    $element.prepend($selectedToggle);
+    // $element.prepend($selectedToggle);
+    $element.prepend($addToggle);
     this.parent.append($element);
     return [$element, $viewToggle, $selectedToggle];
   }

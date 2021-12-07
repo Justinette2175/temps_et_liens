@@ -181,12 +181,16 @@ body {
 }
 
 input {
-  @apply w-full h-12 rounded-full border-0 text-base focus:outline-black px-5;
+  @apply w-full h-12 rounded-full border-0 text-base px-5;
   font-family: "Cabin", sans-serif;
 }
 
 button.app-button {
-  @apply rounded-full border-0 text-base focus:outline-black px-5 py-2 bg-turquoise hover:bg-turquoise-light font-bold transition duration-200 focus:bg-turquoise-light;
+  @apply rounded-full border-0 text-base px-5 py-2 bg-turquoise hover:bg-turquoise-light font-bold transition duration-200 focus:bg-turquoise-light;
+}
+
+button.app-secondary-button {
+  @apply rounded-full border-2 text-base px-5 py-2 border-text hover:border-text-dark hover:text-text-dark font-bold transition duration-200 focus:border-text-dark focus:text-text-dark;
 }
 
 #info,

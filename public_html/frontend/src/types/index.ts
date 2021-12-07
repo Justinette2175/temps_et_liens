@@ -51,3 +51,7 @@ export type Dimensions = {
   w: number;
   h: number;
 };
+
+export type PrompterContext = {
+  categories?: CategoryData[];
+};

@@ -1,5 +1,5 @@
 import $ from "jquery";
-import { CategoryId, PersonId } from "../types";
+import { CategoryId, PersonId, PrompterContext } from "../types";
 import { PromptText, PromptData } from "../utils/prompts";
 
 class Prompt {
@@ -12,9 +12,11 @@ class Prompt {
     categoryNames?: CategoryId[]
   ) => Promise<void>;
   onAddCategoryAndMakeLocalCategory: (categoryName: string) => Promise<void>;
+  context: PrompterContext;
   constructor(
     id: string,
     prompt: PromptData,
+    context: PrompterContext,
     onNextPrompt: (nextPromptId: string) => void,
     onClose: () => void,
     onAddPersonWithCategories: (
@@ -25,6 +27,7 @@ class Prompt {
   ) {
     this.id = id;
     this.data = prompt;
+    this.context = context;
     this.onNextPrompt = onNextPrompt;
     this.onClose = onClose;
     this.onAddPersonWithCategories = onAddPersonWithCategories;
@@ -47,6 +50,7 @@ class Prompt {
 
     if (this.data.text) {
       this.data.text.forEach((promptText) => {
+        const contentParameters = /(?<='${').*?(?='}')/g;
         const $el = $(promptText.tag);
         $el.append(promptText.content);
         $content.append($el);
@@ -69,7 +73,7 @@ class Prompt {
     this.data.actions.forEach((action) => {
       // Handle Button action
       if (action.type === "button") {
-        const $button = $(`<button class="app-button"></button>`);
+        const $button = $(`<button class="app-secondary-button"></button>`);
         $button.append(action.params.text);
         $button.on("click", () => {
           const nextPromptId = action.params?.onDo?.nextPromptId;
@@ -90,8 +94,18 @@ class Prompt {
           </form>
         `);
 
+        const $grid = $(
+          `<div class="grid gap-4 grid-cols-4 content-center"></grid>`
+        );
+        const $inputGrid = $(`<div class="col-span-3"></grid>`);
         const $input = $(`<input>`);
-        $form.append($input);
+        $inputGrid.append($input);
+        $grid.append($inputGrid);
+        const $buttonGrid = $(
+          `<div class="col-span-1"><button class="app-button" type="submit">Save</button></div>`
+        );
+        $grid.append($buttonGrid);
+        $form.append($grid);
         $input.focus();
         $form.on("submit", (e: Event) => {
           e.preventDefault();

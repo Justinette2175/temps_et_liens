@@ -1,11 +1,12 @@
-import { CategoryData, CategoryId, PersonData } from "../types";
+import {
+  CategoryData,
+  CategoryId,
+  PersonData,
+  PrompterContext
+} from "../types";
 import { PromptData } from "../utils/prompts";
 import Store from "./Store";
 import Prompt from "./Prompt";
-
-export type PrompterContext = {
-  categories?: CategoryData[];
-};
 
 class Prompter {
   promptData: Record<string, PromptData>;
@@ -50,6 +51,7 @@ class Prompter {
     this.currentPrompt = new Prompt(
       nextPromptId,
       data,
+      this.context,
       this.onNextPrompt.bind(this),
       this.onClose.bind(this),
       this.onAddPersonWithCategories.bind(this),
